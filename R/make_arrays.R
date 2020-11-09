@@ -12,7 +12,7 @@
 make_arrays <- function(m = 5, n = 5) {
   array_mn <- function(vec_mn) array(vec_mn, dim = c(m, n))
 
-  runif_mn <- array_mn(runif(m * n))
+  runif_mn <- array_mn(stats::runif(m * n))
   zeros_mn <- array_mn(rep(0, times = m * m))
   ones_mn <- array_mn(rep(1, times = m * m))
 
