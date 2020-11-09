@@ -1,9 +1,5 @@
 ---
-title: "Package development workflow"
-output:
-  html_document:
-    keep_md: true
-    df_print: paged
+output: github_document
 ---
 
 See [3.1 HTML document](https://bookdown.org/yihui/rmarkdown/html-document.html)

@@ -1,8 +1,5 @@
 ---
-title: "Creating R package -- first steps"
-output:
-  html_document:
-    df_print: paged
+output: github_document
 ---
 
 ```{r, include = FALSE}

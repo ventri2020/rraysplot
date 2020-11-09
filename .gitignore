@@ -4,5 +4,3 @@
 .httr-oauth
 .DS_Store
 *.html
-R/antsr_helper_functions.R
-development_workflow.md

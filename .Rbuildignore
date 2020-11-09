@@ -4,5 +4,6 @@
 
 ^.*\.html$
 ^first_steps\.Rmd$
+^first_steps\.md$
 ^development_workflow\.Rmd$
 ^development_workflow\.md$
