@@ -7,9 +7,21 @@ output: html_notebook
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
-  # fig.path = "figures/README-",
+  fig.path = "figures/devworkflow-",
   out.width = "100%"
 )
 ```
 
-TODO 8)
+```{r}
+fs::dir_info(
+    all = TRUE,
+    recurse = TRUE,
+    regexp = "^(.git|.Rproj.user)/.+",
+    invert = TRUE) %>% 
+  dplyr::select(path, type)
+```
+
+```{r}
+
+```
+

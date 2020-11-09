@@ -110,7 +110,7 @@ devtools::install_github("ropenscilabs/available")
 ```
 
 ```{r}
-available::suggest(text = "A plotting helpers for arrays.")
+available::suggest(text = "Plotting helpers for arrays.")
 ```
 
 
