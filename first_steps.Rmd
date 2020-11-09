@@ -1,0 +1,171 @@
+---
+title: "Creating R package -- first steps"
+output:
+  html_document:
+    df_print: paged
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  # fig.path = "figures/README-",
+  out.width = "100%"
+)
+
+`%>%` <- purrr::`%>%`
+```
+
+## More info...
+
+* Package structure and state. 
+[4.7 Package libraries](https://r-pkgs.org/package-structure-state.html#library).
+* [Comparison of `fs` functions, base R, and shell commands](https://cran.r-project.org/web/packages/fs/vignettes/function-comparisons.html)
+
+
+## Managing package libraries
+
+Here are the main two levers that control which libraries
+are active, in order of scope and persistence:
+
+1. Environment variables, like `R_LIBS` and `R_LIBS_USER`,
+which are consulted at startup.
+1. Calling `.libPaths()` with one or more filepaths.
+
+```sh
+mkdir -p ~/Library/R/4.0/library
+```
+
+```{sh}
+cat ~/.Rprofile.site
+```
+
+```{sh}
+echo $R_LIBS_USER
+```
+
+```{r}
+.Library
+.Library.site
+```
+
+In both cases we see two active libraries, consulted in this order:
+
+1. A user library.
+1. A system-level or global library.
+
+```{r}
+.libPaths()
+```
+
+```{r}
+lapply(
+  .libPaths(), 
+  list.dirs, 
+  recursive = FALSE, 
+  full.names = FALSE)
+```
+
+
+## Check what is installed
+
+```{r message=FALSE, warning=FALSE}
+packageVersion("devtools")
+
+options(buildtools.check = NULL)
+# devtools::install_github("r-lib/devtools")
+# packageVersion("devtools")
+```
+
+Optionally run:
+
+```{r}
+# tidyverse::tidyverse_update()
+# tidyverse::tidyverse_conflicts()
+tidyverse::tidyverse_packages()
+```
+
+
+## [Name your package](https://r-pkgs.org/workflows101.html#naming)
+
+There are three formal requirements:
+
+1. The name can only consist of letters,
+   numbers, and periods.
+1. It must start with a letter.
+1. It cannot end with a period.
+
+Unfortunately, this means you can’t use either
+hyphens (`-`) or underscores (`_`) in your package name.
+We recommend against using periods in package names,
+due to confusing associations with file 
+extensions and S3 methods.
+
+The [available](https://cran.r-project.org/web/packages/available/available.pdf) 
+package has a function called `available()` that helps
+you evaluate a potential package name from many angles:
+
+```r
+devtools::install_github("ropenscilabs/available")
+```
+
+```{r}
+available::suggest(text = "A plotting helpers for arrays.")
+```
+
+
+## [Create package](https://r-pkgs.org/workflows101.html#create-a-package)
+
+```{r}
+library(devtools)
+library(tidyverse)
+```
+
+```{r}
+source_directory <- "~/RPKGS/GUMED" 
+package_name <- "rraysplot"
+
+# fs::dir_create(source_directory)
+
+pkg_path <- fs::path(.libPaths()[[1]], package_name)
+pkg_path
+src_path <- fs::path(source_directory, package_name)
+src_path
+```
+
+```r
+usethis::create_package(src_path)
+```
+
+```
+✓ Creating '/Users/wbzyl/RPKGS/GUMED/rraysplot/'
+✓ Setting active project to '/Users/wbzyl/RPKGS/GUMED/rraysplot'
+✓ Creating 'R/'
+✓ Writing 'DESCRIPTION'
+Package: rraysplot
+Title: What the Package Does (One Line, Title Case)
+Version: 0.0.0.9000
+Authors@R (parsed):
+    * Wlodek <wlodek@rpkgs.com> [aut, cre]
+Description: What the package does (one paragraph).
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.1.1
+✓ Writing 'NAMESPACE'
+✓ Writing 'rraysplot.Rproj'
+✓ Adding '.Rproj.user' to '.gitignore'
+✓ Adding '^rraysplot\\.Rproj$', '^\\.Rproj\\.user$' to '.Rbuildignore'
+✓ Opening '/Users/wbzyl/RPKGS/GUMED/rraysplot/' in new RStudio session
+✓ Setting active project to '<no active project>'
+```
+
+```{r}
+fs::dir_info(
+    all = TRUE,
+    recurse = TRUE,
+    regexp = "^(.git|.Rproj.user)/.+",
+    invert = TRUE) %>% 
+  dplyr::select(path, type)
+```
