@@ -169,3 +169,8 @@ fs::dir_info(
     invert = TRUE) %>% 
   dplyr::select(path, type)
 ```
+
+```{r}
+use_r("make_arrays")
+```
+

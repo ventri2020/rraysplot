@@ -1,6 +1,9 @@
 ---
 title: "Package development workflow"
-output: html_notebook
+output:
+  html_document:
+    keep_md: true
+    df_print: paged
 ---
 
 ```{r, include = FALSE}
@@ -10,6 +13,13 @@ knitr::opts_chunk$set(
   fig.path = "figures/devworkflow-",
   out.width = "100%"
 )
+
+`%>%` <- purrr::`%>%`
+```
+
+```{r}
+library(devtools)
+library(fs)
 ```
 
 ```{r}
@@ -21,7 +31,52 @@ fs::dir_info(
   dplyr::select(path, type)
 ```
 
-```{r}
+## [2.6 Write the first function](https://r-pkgs.org/whole-game.html#write-the-first-function)
 
+```{r}
+use_r("make_arrays")
+```
+
+Put the following definition in _R/make_arrays.R_ an save it.
+
+```r
+make_arrays <- function(m = 5, n = 5) {
+  array(NA, c(m, n))
+}
+```
+
+```r
+load_all() # shift + ctrl + L  or  shift + command
+
+make_arrays(2, 4)
+#>      [,1] [,2] [,3] [,4]
+#> [1,]   NA   NA   NA   NA
+#> [2,]   NA   NA   NA   NA
+```
+
+```{r}
+check()
+```
+
+## 2.10 Edit DESCRIPTION
+
+```{r}
+use_mit_license("Wlodek Bzyl")
+```
+```{r}
+check()
+```
+
+## 2.12 document()
+
+Would not it be nice to get help on `make_arrays()`, just like we do with other R functions?
+This requires that your package have a special R documentation file, _man/make_arrays.Rd_.
+
+```r
+2+2
+```
+
+```{r}
+document()
 ```
 

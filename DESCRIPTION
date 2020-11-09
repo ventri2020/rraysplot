@@ -1,5 +1,5 @@
 Package: rraysplot
-Title: What the Package Does (One Line, Title Case)
+Title: Make 2D Arrays Plots Less Aggravating
 Version: 0.0.0.9000
 Authors@R: 
     person(given = "Wlodek",
@@ -7,7 +7,7 @@ Authors@R:
            role = c("aut", "cre"),
            email = "wlodek.bzyl@rpkgs.com",
            comment = c(ORCID = "0000-0002-2245-6194"))
-Description: What the package does (one paragraph).
+Description: The packages provides simple helper functions to plot U-Net data.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true

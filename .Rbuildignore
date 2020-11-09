@@ -1,2 +1,7 @@
 ^rraysplot\.Rproj$
 ^\.Rproj\.user$
+^LICENSE\.md$
+
+^.*\.html$
+^first_steps\.Rmd$
+^development_workflow\.Rmd$
