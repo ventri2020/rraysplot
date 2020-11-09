@@ -6,6 +6,9 @@ output:
     df_print: paged
 ---
 
+See [3.1 HTML document](https://bookdown.org/yihui/rmarkdown/html-document.html)
+in „R Markdown: The Definitive Guide” by Yihui Xie, J. J. Allaire, Garrett Grolemund.
+
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
@@ -26,14 +29,14 @@ library(fs)
 fs::dir_info(
     all = TRUE,
     recurse = TRUE,
-    regexp = "^(.git|.Rproj.user)/.+",
+    regexp = "^(.git|.Rproj.user|.+\\.(html|md))/.+",
     invert = TRUE) %>% 
   dplyr::select(path, type)
 ```
 
 ## [2.6 Write the first function](https://r-pkgs.org/whole-game.html#write-the-first-function)
 
-```{r}
+```r
 use_r("make_arrays")
 ```
 
@@ -54,18 +57,25 @@ make_arrays(2, 4)
 #> [2,]   NA   NA   NA   NA
 ```
 
-```{r}
+```r
 check()
 ```
+
 
 ## 2.10 Edit DESCRIPTION
 
 ```{r}
 use_mit_license("Wlodek Bzyl")
+# ✓ Setting active project to '/Users/wbzyl/RPKGS/GUMED/rraysplot'
+# ✓ Writing 'LICENSE.md'
+# ✓ Adding '^LICENSE\\.md$' to '.Rbuildignore'
+# ✓ Writing 'LICENSE'
 ```
-```{r}
+
+```r
 check()
 ```
+
 
 ## 2.12 document()
 
@@ -73,10 +83,58 @@ Would not it be nice to get help on `make_arrays()`, just like we do with other 
 This requires that your package have a special R documentation file, _man/make_arrays.Rd_.
 
 ```r
-2+2
+document()
+# Updating rraysplot documentation
+# Loading rraysplot
+# Writing NAMESPACE
+# Writing make_arrays.Rd
+```
+
+```r
+check()
+```
+
+
+## 2.14 `install()`
+
+Since we have a minimum viable(?) product now, let’s install the foofactors
+package into your library via `install()`:
+
+```{r}
+install()
+# * installing to library ‘/Users/wbzyl/Library/R/4.0/library’
 ```
 
 ```{r}
-document()
+library(rraysplot)
+make_arrays(2, 3)
+```
+
+
+## 2.15 `use_testthat()`
+
+* [testthat](https://testthat.r-lib.org) -- overview, reference, articles.
+
+```{r}
+use_testthat()
+# ✓ Adding 'testthat' to Suggests field in DESCRIPTION
+# ✓ Creating 'tests/testthat/'
+# ✓ Writing 'tests/testthat.R'
+# ● Call `use_test()` to initialize a basic test file and open it for editing.
+```
+
+```{r}
+use_test("make_arrays")
+# ✓ Writing 'tests/testthat/test-make_arrays.R'
+# ● Modify 'tests/testthat/test-make_arrays.R'
+```
+
+```{r}
+library(testthat)
+load_all()
+```
+
+```{r}
+test() # cmd + shift + T
 ```
 
