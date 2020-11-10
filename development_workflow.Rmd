@@ -134,3 +134,28 @@ load_all()
 test() # cmd + shift + T
 ```
 
+
+## 2.18 `use_readme_rmd()`
+
+Now that your package is on GitHub, the _README.md_ file matters. 
+
+It is the package’s home page and welcome mat,
+at least until you decide to give it a website with pkgdown,
+**add a vignette**, or submit it to CRAN.
+
+```r
+use_readme_rmd()
+
+✓ Setting active project to '/Users/wbzyl/RPKGS/GUMED/rraysplot'
+✓ Writing 'README.Rmd'
+✓ Adding '^README\\.Rmd$' to '.Rbuildignore'
+● Modify 'README.Rmd'
+✓ Writing '.git/hooks/pre-commit'
+```
+
+You'll still need to render `README.Rmd` regularly,
+to keep `README.md` up-to-date.
+```r
+devtools::build_readme()
+```
+is handy for this.
