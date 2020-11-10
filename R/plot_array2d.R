@@ -16,22 +16,25 @@
 #' urandom <- make_arrays(m = 5, n = 5)$urandom
 #' plot_array2d(urandom)
 plot_array2d <- function(arr, title = NULL) {
-  d <- dim(arr)
-  dt <- tidyr::expand_grid(x = 1:d[1], y = 1:d[2]) %>%
-    dplyr::mutate(z = as.numeric(arr))
+  d = dim(arr)
 
-  dt %>% ggplot2::ggplot(ggplot2::aes(x, y, fill = z)) +
+  vec = as.numeric(arr)
+  maxi = max(vec)
+  if (maxi == 0) maxi = 1
+
+  col <- grDevices::rgb(vec, vec, vec, maxColorValue = maxi)
+
+  dt <- tidyr::expand_grid(x = 1:d[1], y = 1:d[2]) %>%
+    dplyr::mutate(z = col)
+
+  dt %>% ggplot2::ggplot(ggplot2::aes(x, y, fill = col)) +
     ggplot2::geom_raster() +
     ggplot2::labs(
       title = title,
       x = NULL,
       y = NULL
     ) +
-    ggplot2::scale_fill_manual(values=z) +
-    # ggplot2::scale_fill_gradientn(
-    #   colors = grDevices::gray.colors(128, start = 0, end = 1),
-    #   expand = ggplot2::expansion(mult = c(0, .1))
-    # ) +
+    ggplot2::scale_fill_manual(values = levels(factor(col))) +
     ggplot2::coord_fixed(
       1,
       expand = FALSE # removes gray panel from the background
@@ -50,7 +53,3 @@ plot_array2d <- function(arr, title = NULL) {
       legend.position = "none"
     )
 }
-
-# col = rgb(z16, 0, 0, maxColorValue = 15)
-# p <- ggplot(df, aes(x, y, fill = col)) + geom_raster()
-# p + scale_fill_manual(values = col)
