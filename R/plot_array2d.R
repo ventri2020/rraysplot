@@ -27,10 +27,11 @@ plot_array2d <- function(arr, title = NULL) {
       x = NULL,
       y = NULL
     ) +
-    ggplot2::scale_fill_gradientn(
-      colors = grDevices::gray.colors(128, start = 0, end = 1),
-      expand = ggplot2::expansion(mult = c(0, .1))
-    ) +
+    ggplot2::scale_fill_manual(values=z) +
+    # ggplot2::scale_fill_gradientn(
+    #   colors = grDevices::gray.colors(128, start = 0, end = 1),
+    #   expand = ggplot2::expansion(mult = c(0, .1))
+    # ) +
     ggplot2::coord_fixed(
       1,
       expand = FALSE # removes gray panel from the background
@@ -49,3 +50,7 @@ plot_array2d <- function(arr, title = NULL) {
       legend.position = "none"
     )
 }
+
+# col = rgb(z16, 0, 0, maxColorValue = 15)
+# p <- ggplot(df, aes(x, y, fill = col)) + geom_raster()
+# p + scale_fill_manual(values = col)
