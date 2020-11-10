@@ -1,4 +1,6 @@
 
+# First Steps
+
 ## More info…
 
 -   Package structure and state. [4.7 Package
@@ -21,7 +23,8 @@ mkdir -p ~/Library/R/4.0/library
 
 ``` sh
 cat ~/.Rprofile.site
-#> .Library.site = "~/Library/%v/library
+#> # ?.libPaths
+#> .Library.site = "~/Library/%v/library"
 #> .libPaths(.libPaths())
 ```
 
@@ -55,45 +58,51 @@ lapply(
   recursive = FALSE, 
   full.names = FALSE)
 #> [[1]]
-#>  [1] "available"   "clisymbols"  "hunspell"    "janeaustenr" "rraysplot"  
-#>  [6] "SnowballC"   "stringdist"  "tidytext"    "tokenizers"  "udapi"      
-#> [11] "yesno"      
+#>  [1] "available"   "clisymbols"  "hunspell"    "janeaustenr" "ragg"       
+#>  [6] "rraysplot"   "SnowballC"   "stringdist"  "systemfonts" "textshaping"
+#> [11] "tidytext"    "tokenizers"  "udapi"       "yesno"      
 #> 
 #> [[2]]
-#>   [1] "ANTsR"        "ANTsRCore"    "ANTsRNet"     "askpass"      "assertthat"  
-#>   [6] "backports"    "base"         "base64enc"    "BH"           "blob"        
-#>  [11] "boot"         "brew"         "brio"         "broom"        "callr"       
-#>  [16] "cellranger"   "class"        "cli"          "clipr"        "cluster"     
-#>  [21] "codetools"    "colorspace"   "commonmark"   "compiler"     "config"      
-#>  [26] "covr"         "cowplot"      "cpp11"        "crayon"       "crosstalk"   
-#>  [31] "curl"         "datasets"     "DBI"          "dbplyr"       "desc"        
-#>  [36] "devtools"     "diffobj"      "digest"       "dplyr"        "DT"          
-#>  [41] "ellipsis"     "evaluate"     "fansi"        "farver"       "forcats"     
-#>  [46] "foreign"      "fs"           "generics"     "ggplot2"      "gh"          
-#>  [51] "git2r"        "glue"         "graphics"     "grDevices"    "grid"        
-#>  [56] "gtable"       "haven"        "highr"        "hms"          "htmltools"   
-#>  [61] "htmlwidgets"  "httr"         "ini"          "isoband"      "ITKR"        
-#>  [66] "jsonlite"     "keras"        "KernSmooth"   "knitr"        "labeling"    
-#>  [71] "later"        "lattice"      "lazyeval"     "lifecycle"    "lobstr"      
-#>  [76] "lubridate"    "magrittr"     "markdown"     "MASS"         "Matrix"      
-#>  [81] "memoise"      "methods"      "mgcv"         "mime"         "misc3d"      
-#>  [86] "modelr"       "munsell"      "mvtnorm"      "nlme"         "nnet"        
-#>  [91] "openssl"      "parallel"     "pillar"       "pixmap"       "pkgbuild"    
-#>  [96] "pkgconfig"    "pkgload"      "praise"       "prettyunits"  "processx"    
-#> [101] "progress"     "promises"     "pryr"         "ps"           "purrr"       
-#> [106] "R6"           "ragg"         "rappdirs"     "rcmdcheck"    "RColorBrewer"
-#> [111] "Rcpp"         "RcppEigen"    "readr"        "readxl"       "rematch"     
-#> [116] "rematch2"     "remotes"      "reprex"       "reticulate"   "rex"         
-#> [121] "rlang"        "rmarkdown"    "roxygen2"     "rpart"        "rprojroot"   
-#> [126] "rstudioapi"   "rversions"    "rvest"        "scales"       "selectr"     
-#> [131] "sessioninfo"  "spatial"      "splines"      "stats"        "stats4"      
-#> [136] "stringi"      "stringr"      "survival"     "sys"          "systemfonts" 
-#> [141] "tcltk"        "tcltk2"       "tensorflow"   "testthat"     "textshaping" 
-#> [146] "tfruns"       "tibble"       "tidyr"        "tidyselect"   "tidyverse"   
-#> [151] "tinytex"      "tools"        "translations" "usethis"      "utf8"        
-#> [156] "utils"        "vctrs"        "viridisLite"  "waldo"        "whisker"     
-#> [161] "withr"        "xfun"         "xml2"         "xopen"        "yaml"        
-#> [166] "zeallot"
+#>   [1] "abind"        "ANTsR"        "ANTsRCore"    "ANTsRNet"     "askpass"     
+#>   [6] "assertthat"   "backports"    "base"         "base64enc"    "BBmisc"      
+#>  [11] "BH"           "bitops"       "blob"         "bmp"          "boot"        
+#>  [16] "brew"         "brio"         "broom"        "callr"        "cellranger"  
+#>  [21] "checkmate"    "class"        "cli"          "clipr"        "cluster"     
+#>  [26] "codetools"    "colorspace"   "commonmark"   "compiler"     "config"      
+#>  [31] "covr"         "cowplot"      "cpp11"        "crayon"       "credentials" 
+#>  [36] "crosstalk"    "curl"         "datasets"     "DBI"          "dbplyr"      
+#>  [41] "desc"         "devtools"     "diffobj"      "digest"       "downloader"  
+#>  [46] "dplyr"        "DT"           "ellipsis"     "evaluate"     "fansi"       
+#>  [51] "farver"       "fastmap"      "fftwtools"    "forcats"      "foreign"     
+#>  [56] "fs"           "generics"     "gert"         "ggplot2"      "gh"          
+#>  [61] "git2r"        "gitcreds"     "glue"         "graphics"     "grDevices"   
+#>  [66] "grid"         "gridExtra"    "gtable"       "haven"        "highr"       
+#>  [71] "hms"          "htmltools"    "htmlwidgets"  "httpuv"       "httr"        
+#>  [76] "igraph"       "imager"       "imagerExtra"  "ini"          "isoband"     
+#>  [81] "ITKR"         "jpeg"         "jsonlite"     "keras"        "KernSmooth"  
+#>  [86] "knitr"        "labeling"     "later"        "lattice"      "lazyeval"    
+#>  [91] "learnr"       "lifecycle"    "lobstr"       "lubridate"    "magrittr"    
+#>  [96] "markdown"     "MASS"         "Matrix"       "memoise"      "methods"     
+#> [101] "mgcv"         "mime"         "miniUI"       "misc3d"       "modelr"      
+#> [106] "munsell"      "mvtnorm"      "nlme"         "nnet"         "openssl"     
+#> [111] "oro.nifti"    "parallel"     "pillar"       "pixmap"       "pkgbuild"    
+#> [116] "pkgconfig"    "pkgload"      "plogr"        "plyr"         "png"         
+#> [121] "praise"       "prettyunits"  "processx"     "progress"     "promises"    
+#> [126] "ps"           "purrr"        "R6"           "rappdirs"     "raster"      
+#> [131] "rcmdcheck"    "RColorBrewer" "Rcpp"         "RcppEigen"    "readbitmap"  
+#> [136] "readr"        "readxl"       "regexplain"   "rematch"      "rematch2"    
+#> [141] "remotes"      "renv"         "reprex"       "reshape2"     "reticulate"  
+#> [146] "rex"          "rlang"        "rmarkdown"    "RNifti"       "roxygen2"    
+#> [151] "rpart"        "rprojroot"    "rstudioapi"   "rticles"      "rversions"   
+#> [156] "rvest"        "scales"       "selectr"      "sessioninfo"  "shiny"       
+#> [161] "sloop"        "sourcetools"  "sp"           "spatial"      "splines"     
+#> [166] "spng"         "stats"        "stats4"       "stringi"      "stringr"     
+#> [171] "survival"     "sys"          "tcltk"        "tensorflow"   "testthat"    
+#> [176] "tfruns"       "tibble"       "tidyr"        "tidyselect"   "tidyverse"   
+#> [181] "tiff"         "tinytex"      "tools"        "translations" "usethis"     
+#> [186] "utf8"         "utils"        "vctrs"        "viridisLite"  "waldo"       
+#> [191] "whisker"      "withr"        "xfun"         "xml2"         "xopen"       
+#> [196] "xtable"       "yaml"         "zeallot"      "zip"
 ```
 
 ## Check what is installed
@@ -211,20 +220,20 @@ fs::dir_info(
     regexp = "^(.git|.Rproj.user)/.+",
     invert = TRUE) %>% 
   dplyr::select(path, type)
-#> # A tibble: 22 x 2
-#>    path          type     
-#>    <fs::path>    <fct>    
-#>  1 .Rbuildignore file     
-#>  2 .Rhistory     file     
-#>  3 .Rproj.user   directory
-#>  4 .git          directory
-#>  5 .gitignore    file     
-#>  6 DESCRIPTION   file     
-#>  7 LICENSE       file     
-#>  8 LICENSE.md    file     
-#>  9 NAMESPACE     file     
-#> 10 R             directory
-#> # … with 12 more rows
+#> # A tibble: 25 x 2
+#>    path            type     
+#>    <fs::path>      <fct>    
+#>  1 .Rbuildignore   file     
+#>  2 .Rproj.user     directory
+#>  3 .git            directory
+#>  4 .gitignore      file     
+#>  5 DESCRIPTION     file     
+#>  6 LICENSE         file     
+#>  7 LICENSE.md      file     
+#>  8 NAMESPACE       file     
+#>  9 R               directory
+#> 10 R/make_arrays.R file     
+#> # … with 15 more rows
 ```
 
 ``` r

@@ -2,6 +2,8 @@
 output: github_document
 ---
 
+# Development Workflow
+
 See [3.1 HTML document](https://bookdown.org/yihui/rmarkdown/html-document.html)
 in „R Markdown: The Definitive Guide” by Yihui Xie, J. J. Allaire, Garrett Grolemund.
 
@@ -75,8 +77,11 @@ check()
 
 ## 2.12 document()
 
-Would not it be nice to get help on `make_arrays()`, just like we do with other R functions?
-This requires that your package have a special R documentation file, _man/make_arrays.Rd_.
+Would not it be nice to get help on `make_arrays()`,
+just like we do with other R functions?
+
+This requires that your package have a special
+R documentation file, _man/make_arrays.Rd_.
 
 ```r
 document()
@@ -93,8 +98,9 @@ check()
 
 ## 2.14 `install()`
 
-Since we have a minimum viable(?) product now, let’s install the foofactors
-package into your library via `install()`:
+Since we have a minimum viable(?) product now,
+let’s install the foofactors package into your 
+library via `install()`:
 
 ```{r}
 install()
@@ -103,7 +109,7 @@ install()
 
 ```{r}
 library(rraysplot)
-make_arrays(2, 3)
+make_arrays(4, 3)
 ```
 
 
@@ -111,7 +117,7 @@ make_arrays(2, 3)
 
 * [testthat](https://testthat.r-lib.org) -- overview, reference, articles.
 
-```{r}
+```r
 use_testthat()
 # ✓ Adding 'testthat' to Suggests field in DESCRIPTION
 # ✓ Creating 'tests/testthat/'
@@ -119,7 +125,7 @@ use_testthat()
 # ● Call `use_test()` to initialize a basic test file and open it for editing.
 ```
 
-```{r}
+```r
 use_test("make_arrays")
 # ✓ Writing 'tests/testthat/test-make_arrays.R'
 # ● Modify 'tests/testthat/test-make_arrays.R'
@@ -130,7 +136,7 @@ library(testthat)
 load_all()
 ```
 
-```{r}
+```r
 test() # cmd + shift + T
 ```
 
