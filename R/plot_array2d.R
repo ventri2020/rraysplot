@@ -15,7 +15,7 @@
 #' @examples
 #' urandom <- make_arrays(m = 5, n = 5)$urandom
 #' plot_array2d(urandom)
-plot_array2d <- function(arr, title = NULL) {
+plot_array2d <- function(arr, title = NULL, title_size = 48) {
   d = dim(arr)
 
   vec = as.numeric(arr)
@@ -44,7 +44,7 @@ plot_array2d <- function(arr, title = NULL) {
       axis.text = ggplot2::element_blank(),
       plot.title = ggplot2::element_text(
         margin = ggplot2::margin(t = 8, b = 16), # ?margin
-        size = ggplot2::rel(1.6),
+        size = title_size,
         lineheight = 1,
         face = "bold",
         colour = "red",
