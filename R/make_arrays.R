@@ -16,14 +16,14 @@ make_arrays <- function(m = 5, n = 5) {
   zeros_mn <- array_mn(rep(0, times = m * m))
   ones_mn <- array_mn(rep(1, times = m * m))
 
-  ones_m <- ones_mn[1:m]
-  ones_n <- ones_mn[1:n]
+  zeros_m <- zeros_mn[1:m]
+  zeros_n <- zeros_mn[1:n]
 
-  rectangle_mn <- zeros_mn
-  rectangle_mn[1, ] <- ones_n
-  rectangle_mn[m, ] <- ones_n
-  rectangle_mn[, 1] <- ones_m
-  rectangle_mn[, n] <- ones_m
+  rectangle_mn <- ones_mn
+  rectangle_mn[1, ] <- zeros_n
+  rectangle_mn[m, ] <- zeros_n
+  rectangle_mn[, 1] <- zeros_m
+  rectangle_mn[, n] <- zeros_m
 
   even_ceiling <- function(x) 2 * ceiling(x / 2)
 
