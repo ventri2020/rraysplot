@@ -106,7 +106,7 @@ foofactors package into your library via `install()`:
 
 ``` r
 install()
-#>      checking for file ‘/Users/wbzyl/RPKGS/GUMED/rraysplot/DESCRIPTION’ ...  ✓  checking for file ‘/Users/wbzyl/RPKGS/GUMED/rraysplot/DESCRIPTION’ (374ms)
+#>      checking for file ‘/Users/wbzyl/RPKGS/GUMED/rraysplot/DESCRIPTION’ ...  ✓  checking for file ‘/Users/wbzyl/RPKGS/GUMED/rraysplot/DESCRIPTION’ (364ms)
 #>   ─  preparing ‘rraysplot’:
 #>      checking DESCRIPTION meta-information ...  ✓  checking DESCRIPTION meta-information
 #>   ─  checking for LF line-endings in source and make files and shell scripts
@@ -116,7 +116,7 @@ install()
 #>   ─  building ‘rraysplot_0.0.0.9000.tar.gz’
 #>      
 #> Running /Library/Frameworks/R.framework/Resources/bin/R CMD INSTALL \
-#>   /var/folders/hc/wp9ltsm97db0c3ch1xj0n6hc0000gn/T//Rtmpf7RnGc/rraysplot_0.0.0.9000.tar.gz \
+#>   /var/folders/hc/wp9ltsm97db0c3ch1xj0n6hc0000gn/T//RtmpQulRTC/rraysplot_0.0.0.9000.tar.gz \
 #>   --install-tests 
 #> * installing to library ‘/Users/wbzyl/Library/R/4.0/library’
 #> * installing *source* package ‘rraysplot’ ...
@@ -139,17 +139,17 @@ library(rraysplot)
 make_arrays(4, 3)
 #> $checker
 #>      [,1] [,2] [,3]
-#> [1,]   NA   NA   NA
-#> [2,]   NA   NA   NA
-#> [3,]   NA   NA   NA
-#> [4,]   NA   NA   NA
+#> [1,]    0    1    0
+#> [2,]    1    0    1
+#> [3,]    0    1    0
+#> [4,]    1    0    1
 #> 
 #> $urandom
-#>           [,1]      [,2]      [,3]
-#> [1,] 0.3246944 0.4232976 0.3200974
-#> [2,] 0.9654249 0.6701155 0.6585191
-#> [3,] 0.2468361 0.6911618 0.1935722
-#> [4,] 0.6193904 0.7652314 0.2376198
+#>           [,1]       [,2]      [,3]
+#> [1,] 0.2902449 0.46345831 0.3497000
+#> [2,] 0.3794885 0.07871781 0.2731734
+#> [3,] 0.9957667 0.92331853 0.7115328
+#> [4,] 0.2228464 0.11042414 0.4550483
 #> 
 #> $zeros
 #>      [,1] [,2] [,3]

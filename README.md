@@ -41,11 +41,11 @@ set.seed(202011)
 lar <- make_arrays(m = 5, n = 5)
 lar$checker
 #>      [,1] [,2] [,3] [,4] [,5]
-#> [1,]   NA   NA   NA   NA   NA
-#> [2,]   NA   NA   NA   NA   NA
-#> [3,]   NA   NA   NA   NA   NA
-#> [4,]   NA   NA   NA   NA   NA
-#> [5,]   NA   NA   NA   NA   NA
+#> [1,]    0    1    0    1    0
+#> [2,]    1    0    1    0    1
+#> [3,]    0    1    0    1    0
+#> [4,]    1    0    1    0    1
+#> [5,]    0    1    0    1    0
 lar$urandom
 #>            [,1]      [,2]       [,3]       [,4]      [,5]
 #> [1,] 0.09437554 0.8488876 0.23377674 0.38703741 0.7267632
@@ -54,3 +54,10 @@ lar$urandom
 #> [4,] 0.41073261 0.8151506 0.25459017 0.30399389 0.4945109
 #> [5,] 0.34459253 0.8121503 0.30086852 0.64472934 0.2765490
 ```
+
+``` r
+plot_array2d(lar$checker, title = "checker")
+plot_array2d(lar$urandom, title = "urandom")
+```
+
+<img src="man/figures/README-figures-side-1.png" width="50%" /><img src="man/figures/README-figures-side-2.png" width="50%" />

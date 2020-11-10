@@ -165,3 +165,29 @@ to keep `README.md` up-to-date.
 devtools::build_readme()
 ```
 is handy for this.
+
+
+## 2.16 `use_package()`
+
+We’re going to add another function to package. 
+We’ll borrow some smarts from the another package,
+for example the function `expand_grid` from the tidyr
+and `%>%` from the purrr package.
+
+First, declare your general intent to use some functions
+from the tidyr namespace with `use_package()`:
+
+```r
+use_package("tidyr")
+use_package("purrr")
+```
+
+Next, optionally(?), we add these lines
+to the source R file (`R/plot_array2d.R`):
+
+```r
+#' @importFrom purrr %>%
+#' @importFrom tidyr expand_grid
+```
+
+
