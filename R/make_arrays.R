@@ -25,8 +25,19 @@ make_arrays <- function(m = 5, n = 5) {
   rectangle_mn[, 1] <- ones_m
   rectangle_mn[, n] <- ones_m
 
+  even_ceiling <- function(x) 2 * ceiling(x / 2)
+
+  checker_mn <- function(m = 5, n = 5) {
+    ord <- max(even_ceiling(c(m, n)))
+    pat2 <- c(
+      rep(0:1, times = ord / 2),
+      rep(1:0, times = ord / 2)
+    )
+    array(pat2, dim = c(ord, ord))[1:m, 1:n]
+  }
+
   list(
-    checker = array(NA, c(m, n)),
+    checker = checker_mn(m, n),
     urandom = array(runif_mn, c(m, n)),
     zeros = zeros_mn,
     ones = ones_mn,

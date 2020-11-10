@@ -50,8 +50,9 @@ library(rraysplot)
 ```{r cars}
 set.seed(202011)
 
-lar <- make_arrays(3, 3)
+lar <- make_arrays(m = 5, n = 5)
 lar$checker
 lar$urandom
 ```
+
 
