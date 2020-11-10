@@ -9,13 +9,14 @@
 #'
 #' @param arr array
 #' @param title character
+#' @param title_size numeric
 #'
 #' @return ggplot object
 #' @export
 #' @examples
 #' urandom <- make_arrays(m = 5, n = 5)$urandom
-#' plot_array2d(urandom)
-plot_array2d <- function(arr, title = NULL, title_size = 48) {
+#' plot_array2d(urandom, title = "urandom", title_size = 32)
+plot_array2d <- function(arr, title = NULL, title_size = 24) {
   d = dim(arr)
 
   vec = as.numeric(arr)
@@ -50,7 +51,7 @@ plot_array2d <- function(arr, title = NULL, title_size = 48) {
         size = title_size,
         lineheight = 1,
         face = "bold",
-        colour = "red",
+        colour = "#f04747",
         hjust = 0.5
       ),
       legend.position = "none"

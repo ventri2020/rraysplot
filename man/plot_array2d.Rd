@@ -4,12 +4,14 @@
 \alias{plot_array2d}
 \title{Return a ggplot of array}
 \usage{
-plot_array2d(arr, title = NULL)
+plot_array2d(arr, title = NULL, title_size = 24)
 }
 \arguments{
 \item{arr}{array}
 
 \item{title}{character}
+
+\item{title_size}{numeric}
 }
 \value{
 ggplot object
@@ -19,5 +21,5 @@ Create ggplot from array
 }
 \examples{
 urandom <- make_arrays(m = 5, n = 5)$urandom
-plot_array2d(urandom)
+plot_array2d(urandom, title = "urandom", title_size = 32)
 }
