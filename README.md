@@ -60,7 +60,7 @@ plot_array2d(lar$checker, title = "checker")
 plot_array2d(lar$urandom, title = "urandom")
 plot_array2d(lar$zeros, title = "zeros")
 plot_array2d(lar$ones, title = "ones")
-plot_array2d(lar$rectangle, title = "rectangle")
+plot_array2d(lar$rectangle, title = "square")
 ```
 
 <img src="man/figures/README-figures-side-1.png" width="20%" /><img src="man/figures/README-figures-side-2.png" width="20%" /><img src="man/figures/README-figures-side-3.png" width="20%" /><img src="man/figures/README-figures-side-4.png" width="20%" /><img src="man/figures/README-figures-side-5.png" width="20%" />
