@@ -24,6 +24,7 @@ plot_array2d <- function(arr, title = NULL, title_size = 48) {
 
   col <- grDevices::rgb(vec, vec, vec, maxColorValue = maxi)
 
+  # dt <- tidyr::expand_grid(x = 1:d[1], y = d[2]:1) %>%
   dt <- tidyr::expand_grid(x = 1:d[1], y = 1:d[2]) %>%
     dplyr::mutate(z = col)
 
@@ -34,7 +35,9 @@ plot_array2d <- function(arr, title = NULL, title_size = 48) {
       x = NULL,
       y = NULL
     ) +
-    ggplot2::scale_fill_manual(values = levels(factor(col))) +
+    ggplot2::scale_fill_manual(
+      values = as.character(levels(factor(col)))
+    ) +
     ggplot2::coord_fixed(
       1,
       expand = FALSE # removes gray panel from the background
