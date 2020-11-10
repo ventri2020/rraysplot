@@ -28,7 +28,7 @@ plot_array2d <- function(arr, title = NULL) {
       y = NULL
     ) +
     ggplot2::scale_fill_gradientn(
-      colors = grDevices::gray.colors(64),
+      colors = grDevices::gray.colors(128, start = 0, end = 1),
       expand = ggplot2::expansion(mult = c(0, .1))
     ) +
     ggplot2::coord_fixed(
@@ -40,7 +40,7 @@ plot_array2d <- function(arr, title = NULL) {
       axis.text = ggplot2::element_blank(),
       plot.title = ggplot2::element_text(
         margin = ggplot2::margin(t = 8, b = 16), # ?margin
-        size = ggplot2::rel(1.4),
+        size = ggplot2::rel(1.6),
         lineheight = 1,
         face = "bold",
         colour = "red",
