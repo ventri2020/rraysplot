@@ -32,45 +32,33 @@ This is a basic example which shows you how to solve a common problem:
 
 ``` r
 library(rraysplot)
-## basic example code
-```
 
-``` r
 set.seed(202011)
-
-lar <- make_arrays(m = 5, n = 5)
-lar$checker
-#>      [,1] [,2] [,3] [,4] [,5]
-#> [1,]    0    1    0    1    0
-#> [2,]    1    0    1    0    1
-#> [3,]    0    1    0    1    0
-#> [4,]    1    0    1    0    1
-#> [5,]    0    1    0    1    0
-lar$urandom
-#>            [,1]      [,2]       [,3]       [,4]      [,5]
-#> [1,] 0.09437554 0.8488876 0.23377674 0.38703741 0.7267632
-#> [2,] 0.94736910 0.6544631 0.07468776 0.37722835 0.1633146
-#> [3,] 0.60130009 0.1290866 0.22243508 0.04616133 0.9636635
-#> [4,] 0.41073261 0.8151506 0.25459017 0.30399389 0.4945109
-#> [5,] 0.34459253 0.8121503 0.30086852 0.64472934 0.2765490
+c(ch5, r5, z5, o5, sq5) %<-% make_arrays(m = 5, n = 5)
 ```
 
 ``` r
-plot_array2d(lar$checker, title = "checker")
-plot_array2d(lar$urandom, title = "urandom")
-plot_array2d(lar$zeros, title = "zeros")
-plot_array2d(lar$ones, title = "ones")
-plot_array2d(lar$rectangle, title = "square")
+plot_array2d(ch5, title = "checker", title_size = 54)
+plot_array2d(r5,  title = "urandom", title_size = 54)
+plot_array2d(z5,  title = "zeros", title_size = 54)
+plot_array2d(o5,  title = "ones", title_size = 54)
+plot_array2d(sq5, title = "square", title_size = 54)
 ```
 
 <img src="man/figures/README-figures-side-1.png" width="20%" /><img src="man/figures/README-figures-side-2.png" width="20%" /><img src="man/figures/README-figures-side-3.png" width="20%" /><img src="man/figures/README-figures-side-4.png" width="20%" /><img src="man/figures/README-figures-side-5.png" width="20%" />
 
 ``` r
-plot_array2d(list(lar$checker, lar$rectangle))
-plot_array2d(list(lar$checker, lar$zeros, lar$rectangle))
-plot_array2d(list(lar$checker, lar$ones, lar$rectangle))
-plot_array2d(list(lar$checker, lar$urandom, lar$zeros))
-plot_array2d(list(lar$checker, lar$zeros, lar$urandom))
+plot_array2d(list(ch5, sq5))
+plot_array2d(list(ch5, o5, sq5))
+plot_array2d(list(ch5, r5, sq5))
+
+d5 = rlang::duplicate(z5)
+d5[1, 1] = 1
+d5[3, 3] = 0.75
+d5[5, 5] = 0.5
+
+plot_array2d(list(ch5, d5, d5))
+plot_array2d(list(ch5, o5, d5))
 ```
 
 <img src="man/figures/README-figures-side-color-1.png" width="20%" /><img src="man/figures/README-figures-side-color-2.png" width="20%" /><img src="man/figures/README-figures-side-color-3.png" width="20%" /><img src="man/figures/README-figures-side-color-4.png" width="20%" /><img src="man/figures/README-figures-side-color-5.png" width="20%" />

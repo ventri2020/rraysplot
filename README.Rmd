@@ -9,8 +9,11 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
   fig.path = "man/figures/README-",
+  fig.asp = 0.618,
   out.width = "100%"
 )
+
+`%<-%` <- keras::`%<-%`
 ```
 
 # rraysplot
@@ -43,31 +46,30 @@ This is a basic example which shows you how to solve a common problem:
 
 ```{r example}
 library(rraysplot)
-## basic example code
-```
 
-
-```{r cars}
 set.seed(202011)
-
-lar <- make_arrays(m = 5, n = 5)
-lar$checker
-lar$urandom
+c(ch5, r5, z5, o5, sq5) %<-% make_arrays(m = 5, n = 5)
 ```
 
-```{r, figures-side, fig.show="hold", out.width="20%"}
-plot_array2d(lar$checker, title = "checker")
-plot_array2d(lar$urandom, title = "urandom")
-plot_array2d(lar$zeros, title = "zeros")
-plot_array2d(lar$ones, title = "ones")
-plot_array2d(lar$rectangle, title = "square")
+```{r, figures-side, fig.show="hold", fig.asp=1, out.width="20%"}
+plot_array2d(ch5, title = "checker", title_size = 54)
+plot_array2d(r5,  title = "urandom", title_size = 54)
+plot_array2d(z5,  title = "zeros", title_size = 54)
+plot_array2d(o5,  title = "ones", title_size = 54)
+plot_array2d(sq5, title = "square", title_size = 54)
 ```
 
-```{r, figures-side-color, fig.show="hold", out.width="20%"}
-plot_array2d(list(lar$checker, lar$rectangle))
-plot_array2d(list(lar$checker, lar$zeros, lar$rectangle))
-plot_array2d(list(lar$checker, lar$ones, lar$rectangle))
-plot_array2d(list(lar$checker, lar$urandom, lar$zeros))
-plot_array2d(list(lar$checker, lar$zeros, lar$urandom))
+```{r, figures-side-color, fig.show="hold", fig.asp = 0.85, out.width="20%"}
+plot_array2d(list(ch5, sq5))
+plot_array2d(list(ch5, o5, sq5))
+plot_array2d(list(ch5, r5, sq5))
+
+d5 = rlang::duplicate(z5)
+d5[1, 1] = 1
+d5[3, 3] = 0.75
+d5[5, 5] = 0.5
+
+plot_array2d(list(ch5, d5, d5))
+plot_array2d(list(ch5, o5, d5))
 ```
 
