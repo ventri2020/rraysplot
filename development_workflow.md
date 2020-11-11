@@ -19,20 +19,20 @@ fs::dir_info(
     regexp = "^(.git|.Rproj.user|.+\\.(html|md))/.+",
     invert = TRUE) %>% 
   dplyr::select(path, type)
-#> # A tibble: 25 x 2
-#>    path            type     
-#>    <fs::path>      <fct>    
-#>  1 .Rbuildignore   file     
-#>  2 .Rproj.user     directory
-#>  3 .git            directory
-#>  4 .gitignore      file     
-#>  5 DESCRIPTION     file     
-#>  6 LICENSE         file     
-#>  7 LICENSE.md      file     
-#>  8 NAMESPACE       file     
-#>  9 R               directory
-#> 10 R/make_arrays.R file     
-#> # … with 15 more rows
+#> # A tibble: 40 x 2
+#>    path          type     
+#>    <fs::path>    <fct>    
+#>  1 .Rbuildignore file     
+#>  2 .Rhistory     file     
+#>  3 .Rproj.user   directory
+#>  4 .git          directory
+#>  5 .gitignore    file     
+#>  6 DESCRIPTION   file     
+#>  7 LICENSE       file     
+#>  8 LICENSE.md    file     
+#>  9 NAMESPACE     file     
+#> 10 R             directory
+#> # … with 30 more rows
 ```
 
 ## [2.6 Write the first function](https://r-pkgs.org/whole-game.html#write-the-first-function)
@@ -106,17 +106,17 @@ foofactors package into your library via `install()`:
 
 ``` r
 install()
-#>      checking for file ‘/Users/wbzyl/RPKGS/GUMED/rraysplot/DESCRIPTION’ ...  ✓  checking for file ‘/Users/wbzyl/RPKGS/GUMED/rraysplot/DESCRIPTION’ (364ms)
+#> 
+#>      checking for file ‘/Users/wbzyl/RPKGS/GUMED/rraysplot/DESCRIPTION’ ...  ✓  checking for file ‘/Users/wbzyl/RPKGS/GUMED/rraysplot/DESCRIPTION’ (363ms)
 #>   ─  preparing ‘rraysplot’:
 #>      checking DESCRIPTION meta-information ...  ✓  checking DESCRIPTION meta-information
 #>   ─  checking for LF line-endings in source and make files and shell scripts
 #>   ─  checking for empty or unneeded directories
-#>    Removed empty directory ‘rraysplot/man/figures’
 #>    Removed empty directory ‘rraysplot/tests/testthat/_snaps’
 #>   ─  building ‘rraysplot_0.0.0.9000.tar.gz’
 #>      
 #> Running /Library/Frameworks/R.framework/Resources/bin/R CMD INSTALL \
-#>   /var/folders/hc/wp9ltsm97db0c3ch1xj0n6hc0000gn/T//RtmpQulRTC/rraysplot_0.0.0.9000.tar.gz \
+#>   /var/folders/hc/wp9ltsm97db0c3ch1xj0n6hc0000gn/T//Rtmp9Ofd9U/rraysplot_0.0.0.9000.tar.gz \
 #>   --install-tests 
 #> * installing to library ‘/Users/wbzyl/Library/R/4.0/library’
 #> * installing *source* package ‘rraysplot’ ...
@@ -126,6 +126,7 @@ install()
 #> ** byte-compile and prepare package for lazy loading
 #> ** help
 #> *** installing help indices
+#> *** copying figures
 #> ** building package indices
 #> ** testing if installed package can be loaded from temporary location
 #> ** testing if installed package can be loaded from final location
@@ -145,11 +146,11 @@ make_arrays(4, 3)
 #> [4,]    1    0    1
 #> 
 #> $urandom
-#>           [,1]       [,2]      [,3]
-#> [1,] 0.2902449 0.46345831 0.3497000
-#> [2,] 0.3794885 0.07871781 0.2731734
-#> [3,] 0.9957667 0.92331853 0.7115328
-#> [4,] 0.2228464 0.11042414 0.4550483
+#>           [,1]      [,2]      [,3]
+#> [1,] 0.7517508 0.6823240 0.7899520
+#> [2,] 0.8961493 0.1838909 0.9828523
+#> [3,] 0.8756509 0.7535020 0.2031490
+#> [4,] 0.1603967 0.1293424 0.8635407
 #> 
 #> $zeros
 #>      [,1] [,2] [,3]
@@ -167,10 +168,10 @@ make_arrays(4, 3)
 #> 
 #> $rectangle
 #>      [,1] [,2] [,3]
-#> [1,]    1    1    1
-#> [2,]    1    0    1
-#> [3,]    1    0    1
-#> [4,]    1    1    1
+#> [1,]    0    0    0
+#> [2,]    0    1    0
+#> [3,]    0    1    0
+#> [4,]    0    0    0
 ```
 
 ## 2.15 `use_testthat()`
@@ -201,6 +202,12 @@ library(testthat)
 #>     test_file
 load_all()
 #> Loading rraysplot
+#> Warning: 
+#> ── Conflicts ──────────────────────────────────────────── rraysplot conflicts ──
+#> x %>%() masks rraysplot::%>%()
+#> 
+#> Did you accidentally source a file rather than using `load_all()`?
+#> Run `rm(list = c("%>%"))` to remove the conflicts.
 ```
 
 ``` r
@@ -233,3 +240,27 @@ devtools::build_readme()
 ```
 
 is handy for this.
+
+## 2.16 `use_package()`
+
+We’re going to add another function to package. We’ll borrow some smarts
+from the another package, for example the function `expand_grid` from
+the tidyr and `%>%` from the purrr package.
+
+First, declare your general intent to use some functions from the tidyr
+namespace with `use_package()`:
+
+``` r
+use_package("tidyr")
+use_package("purrr")
+use_package("tibble")
+```
+
+Next, optionally(?), we add these lines to the source R file
+(`R/plot_array2d.R`):
+
+``` r
+#' @importFrom purrr %>% map map_dbl
+#' @importFrom tidyr expand_grid
+#' @importFrom tibble tibble
+```

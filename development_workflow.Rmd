@@ -180,14 +180,16 @@ from the tidyr namespace with `use_package()`:
 ```r
 use_package("tidyr")
 use_package("purrr")
+use_package("tibble")
 ```
 
 Next, optionally(?), we add these lines
 to the source R file (`R/plot_array2d.R`):
 
 ```r
-#' @importFrom purrr %>%
+#' @importFrom purrr %>% map map_dbl
 #' @importFrom tidyr expand_grid
+#' @importFrom tibble tibble
 ```
 
 
