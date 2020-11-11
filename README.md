@@ -64,3 +64,13 @@ plot_array2d(lar$rectangle, title = "square")
 ```
 
 <img src="man/figures/README-figures-side-1.png" width="20%" /><img src="man/figures/README-figures-side-2.png" width="20%" /><img src="man/figures/README-figures-side-3.png" width="20%" /><img src="man/figures/README-figures-side-4.png" width="20%" /><img src="man/figures/README-figures-side-5.png" width="20%" />
+
+``` r
+plot_array2d(list(lar$checker, lar$rectangle))
+plot_array2d(list(lar$checker, lar$zeros, lar$rectangle))
+plot_array2d(list(lar$checker, lar$ones, lar$rectangle))
+plot_array2d(list(lar$checker, lar$urandom, lar$zeros))
+plot_array2d(list(lar$checker, lar$zeros, lar$urandom))
+```
+
+<img src="man/figures/README-figures-side-color-1.png" width="20%" /><img src="man/figures/README-figures-side-color-2.png" width="20%" /><img src="man/figures/README-figures-side-color-3.png" width="20%" /><img src="man/figures/README-figures-side-color-4.png" width="20%" /><img src="man/figures/README-figures-side-color-5.png" width="20%" />

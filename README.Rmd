@@ -62,3 +62,12 @@ plot_array2d(lar$zeros, title = "zeros")
 plot_array2d(lar$ones, title = "ones")
 plot_array2d(lar$rectangle, title = "square")
 ```
+
+```{r, figures-side-color, fig.show="hold", out.width="20%"}
+plot_array2d(list(lar$checker, lar$rectangle))
+plot_array2d(list(lar$checker, lar$zeros, lar$rectangle))
+plot_array2d(list(lar$checker, lar$ones, lar$rectangle))
+plot_array2d(list(lar$checker, lar$urandom, lar$zeros))
+plot_array2d(list(lar$checker, lar$zeros, lar$urandom))
+```
+
