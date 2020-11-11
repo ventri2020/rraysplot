@@ -20,4 +20,6 @@ Imports:
     tidyr,
     ggplot2,
     purrr,
-    rlang
+    rlang,
+    scales,
+    tibble
