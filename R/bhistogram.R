@@ -27,7 +27,8 @@ bhistogram <- function(
   ggplot2::ggplot(tb, ggplot2::aes(x = value)) +
     ggplot2::geom_bar(fill = "#312271") +
     ggplot2::scale_x_binned(
-      n.breaks = n_breaks
+      n.breaks = n_breaks,
+      limits = c(0, 1)
     ) +
     ggplot2::labs(
       title = title,
@@ -38,7 +39,9 @@ bhistogram <- function(
       # breaks = c(50000, 100000, 150000, 200000, 250000),
       # limits = c(0, 768 * 384)
     ) +
+    ggplot2::theme_bw() +
     ggplot2::theme(
+      panel.grid.major.x = ggplot2::element_blank(),
       plot.title = ggplot2::element_text(
         size = title_size,
         color = "#312271"
