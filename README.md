@@ -50,7 +50,7 @@ plot_array2d(sq5, title = "square", title_size = 54)
 ``` r
 plot_array2d(list(ch5, sq5))
 plot_array2d(list(ch5, o5, sq5))
-plot_array2d(list(ch5, r5, sq5))
+plot_array2d(list(ch5, r5, z5))
 
 d5 = rlang::duplicate(z5)
 d5[1, 1] = 1
