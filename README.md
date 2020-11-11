@@ -62,3 +62,13 @@ plot_array2d(list(ch5, o5, d5))
 ```
 
 <img src="man/figures/README-figures-side-color-1.png" width="20%" /><img src="man/figures/README-figures-side-color-2.png" width="20%" /><img src="man/figures/README-figures-side-color-3.png" width="20%" /><img src="man/figures/README-figures-side-color-4.png" width="20%" /><img src="man/figures/README-figures-side-color-5.png" width="20%" />
+
+Note that the `mm` values are rescaled to (0,1) range by the
+`bhistogram` function.
+
+``` r
+mm = c(rnorm(1500, 0, .1), rnorm(1000, 1, .2))
+bhistogram(mm, title = "Multimodal frequencies", title_size = 16)
+```
+
+<img src="man/figures/README-figures-bhistogram-1.png" width="60%" style="display: block; margin: auto;" />

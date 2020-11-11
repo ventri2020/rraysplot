@@ -4,7 +4,7 @@
 \alias{bhistogram}
 \title{Return a binned histogram of array or vector}
 \usage{
-bhistogram(v, title = NULL, title_size = 24, n_breaks = 10)
+bhistogram(v, title = NULL, title_size = 14, n_breaks = 10)
 }
 \arguments{
 \item{v}{numeric}
@@ -22,6 +22,6 @@ ggplot object
 Create binned histogram for numeric data
 }
 \examples{
-v = c(rnorm(1500, 0, .1), rnorm(1000, 1, .2))
-bhistogram(v)
+mm = c(rnorm(1500, 0, .1), rnorm(1000, 1, .2))
+bhistogram(mm, title = "Multimodal frequencies", title_size = 14)
 }

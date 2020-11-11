@@ -73,3 +73,11 @@ plot_array2d(list(ch5, d5, d5))
 plot_array2d(list(ch5, o5, d5))
 ```
 
+Note that the `mm` values are rescaled to (0,1) range
+by the `bhistogram` function.
+
+```{r, figures-bhistogram, fig.align="center", fig.asp = 1, fig.width=4, out.width = "60%"}
+mm = c(rnorm(1500, 0, .1), rnorm(1000, 1, .2))
+bhistogram(mm, title = "Multimodal frequencies", title_size = 16)
+```
+

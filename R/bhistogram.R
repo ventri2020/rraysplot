@@ -16,10 +16,10 @@
 #' @return ggplot object
 #' @export
 #' @examples
-#' v = c(rnorm(1500, 0, .1), rnorm(1000, 1, .2))
-#' bhistogram(v)
+#' mm = c(rnorm(1500, 0, .1), rnorm(1000, 1, .2))
+#' bhistogram(mm, title = "Multimodal frequencies", title_size = 14)
 bhistogram <- function(
-    v, title = NULL, title_size = 24, n_breaks = 10
+    v, title = NULL, title_size = 14, n_breaks = 10
 ) {
   rv <- scales::rescale(v, to = c(0,1), from = range(v, na.rm = TRUE))
   tb <- tibble::tibble(value = as.numeric(rv))
