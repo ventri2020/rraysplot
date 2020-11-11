@@ -4,10 +4,10 @@
 \alias{plot_array2d}
 \title{Return a ggplot of array}
 \usage{
-plot_array2d(arr, title = NULL, title_size = 24)
+plot_array2d(arrList, title = NULL, title_size = 24)
 }
 \arguments{
-\item{arr}{array}
+\item{arrList}{array or list of 1, 2, or 3 arrays}
 
 \item{title}{character}
 

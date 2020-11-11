@@ -2,12 +2,15 @@
 #'
 #' Create ggplot from array
 #'
-#' @importFrom purrr %>%
+#' @importFrom purrr %>% map map_dbl
 #' @importFrom tidyr expand_grid
+#' @importFrom dplyr mutate
 #' @importFrom ggplot2 ggplot aes scale_fill_gradientn expansion
 #' @importFrom ggplot2 coord_fixed element_blank element_text margin rel
+#' @importFrom rlang duplicate
+#' @importFrom grDevices rgb
 #'
-#' @param arr array
+#' @param arrList array or list of 1, 2, or 3 arrays
 #' @param title character
 #' @param title_size numeric
 #'
@@ -16,17 +19,35 @@
 #' @examples
 #' urandom <- make_arrays(m = 5, n = 5)$urandom
 #' plot_array2d(urandom, title = "urandom", title_size = 32)
-plot_array2d <- function(arr, title = NULL, title_size = 24) {
-  d = dim(arr)
+plot_array2d <- function(arrList, title = NULL, title_size = 24) {
+  # all arrays should have the same dimensions
 
-  vec = as.numeric(arr)
-  maxi = max(vec)
+  if (all(class(arrList) == c("matrix", "array"))) {
+    arrList = list(arrList, arrList, arrList)
+  }
+
+  if (class(arrList) == "list" & length(arrList) == 2) {
+    # insert into middle (green channel)
+    zeros <- rlang::duplicate(arrList[[1]])
+    zeros[,] <- 0
+    arrList <- append(arrList, list(zeros), 1)
+  }
+
+  d = dim(arrList[[1]])
+
+  # max in all arrays
+  vecList <- purrr::map(arrList, as.numeric)
+  maxi <- max(purrr::map_dbl(vecList, max))
+  # avoid possible divide by zero below
   if (maxi == 0) maxi = 1
 
-  col <- grDevices::rgb(vec, vec, vec, maxColorValue = maxi)
+  col <- grDevices::rgb(
+    vecList[[1]], vecList[[2]], vecList[[3]],
+    maxColorValue = maxi
+  )
 
-  # dt <- tidyr::expand_grid(x = 1:d[1], y = d[2]:1) %>%
-  dt <- tidyr::expand_grid(x = 1:d[1], y = 1:d[2]) %>%
+  # dt <- tidyr::expand_grid(x = 1:d[1], y = 1:d[2]) %>%
+  dt <- tidyr::expand_grid(x = 1:d[1], y = d[2]:1) %>%
     dplyr::mutate(z = col)
 
   dt %>% ggplot2::ggplot(ggplot2::aes(x, y, fill = col)) +

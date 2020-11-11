@@ -19,4 +19,5 @@ Imports:
     dplyr,
     tidyr,
     ggplot2,
-    purrr
+    purrr,
+    rlang
