@@ -4,3 +4,6 @@
 .httr-oauth
 .DS_Store
 *.html
+
+dicom_info.R
+dicom_plot.R

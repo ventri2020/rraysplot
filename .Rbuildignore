@@ -8,3 +8,6 @@
 ^development_workflow\.Rmd$
 ^development_workflow\.md$
 ^README\.Rmd$
+
+dicom_info.R
+dicom_plot.R
