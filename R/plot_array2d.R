@@ -47,7 +47,11 @@ plot_array2d <- function(arrList, title = NULL, title_size = 24) {
   )
 
   # dt <- tidyr::expand_grid(x = 1:d[1], y = 1:d[2]) %>%
-  dt <- tidyr::expand_grid(x = 1:d[1], y = d[2]:1) %>%
+  # dt <- tidyr::expand_grid(x = 1:d[1], y = d[2]:1) %>%
+  dt <- tibble::tibble(
+    y = rev(rep(1:d[2], each = d[1])),
+    x = rep(1:d[1], times = d[2])
+  ) %>%
     dplyr::mutate(z = col)
 
   dt %>% ggplot2::ggplot(ggplot2::aes(x, y, fill = col)) +
@@ -60,10 +64,8 @@ plot_array2d <- function(arrList, title = NULL, title_size = 24) {
     ggplot2::scale_fill_manual(
       values = as.character(levels(factor(col)))
     ) +
-    ggplot2::coord_fixed(
-      1,
-      expand = FALSE # removes gray panel from the background
-    ) +
+    # remove gray panel from the background
+    ggplot2::coord_fixed(1, expand = FALSE) +
     ggplot2::theme(
       axis.ticks = ggplot2::element_blank(),
       axis.text = ggplot2::element_blank(),
