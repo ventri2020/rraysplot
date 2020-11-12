@@ -71,4 +71,4 @@ mm = c(rnorm(1500, 0, .1), rnorm(1000, 1, .2))
 bhistogram(mm, title = "Multimodal frequencies", title_size = 16)
 ```
 
-<img src="man/figures/README-figures-bhistogram-1.png" width="60%" style="display: block; margin: auto;" />
+<img src="man/figures/README-figures-bhistogram-1.png" width="40%" style="display: block; margin: auto;" />
