@@ -2,8 +2,35 @@ Check MR Images
 ================
 11/12/2020
 
-TODO 1: Convert to function: images\_path TODO 2: Extract from paths:
-image\_id, kind -&gt; SCAT, VSAT, …
+## Image data [2.2.11](https://livebook.manning.com/book/deep-learning-with-r/chapter-2/48)
+
+Images typically have three dimensions:
+
+    height × width × color channels
+
+Although grayscale images have only a single color channel and could
+thus be stored in 2D tensors, by convention image tensors are always 3D,
+with a one-dimensional color channel for grayscale images.
+
+A batch of 80 grayscale images of size 768×384 could thus be stored in a
+tensor of shape
+
+    (80, 768, 384, 1)
+
+and a batch of 80 color images could be stored in a tensor of shape
+
+    (80, 768, 384, 3)
+
+*NOTE:* 768/2^7=6, 384/2^7=3.
+
+*NOTE:* ANTsRNet::resampleTensorLike, ANTsRNet::resampleTensor,
+keras::array\_reshape, reticulate::array\_reshape
+
+*TODO 1*: Convert to function: images\_path
+
+*TODO 2*: Extract from paths: image\_id, kind -&gt; SCAT, VSAT, …
+
+## Check provided image data
 
 ``` r
 paths <- fs::dir_ls(
