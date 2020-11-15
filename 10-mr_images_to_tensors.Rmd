@@ -1,0 +1,126 @@
+---
+title: "Convert Images to Tensors"
+date: "15.11.2020"
+output: github_document
+---
+
+```{r, include = FALSE, message=FALSE, warning=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/00-dw-",
+  out.width = "100%"
+)
+
+`%>%` <- purrr::`%>%`
+
+library(tidyverse)
+library(ANTsRCore)
+
+source("R/plot_array2d.R")
+
+library(devtools)
+library(fs)
+```
+
+
+## Image data for U-Net [2.2.11](https://livebook.manning.com/book/deep-learning-with-r/chapter-2/48)
+
+Images typically have three dimensions:
+```
+height × width × color channels
+```
+Although grayscale images have only a single color channel 
+and could thus be stored in 2D tensors, by convention 
+image tensors are always 3D, with a one-dimensional color channel
+for grayscale images. 
+
+A batch of 80 grayscale images of size 768×384 could thus
+be stored in a tensor of shape 
+```
+(80, 768, 384, 1)
+```
+and a batch of 80 color images could be stored in a  tensor of shape
+```
+(80, 768, 384, 3)
+```
+
+*NOTE:* 768/2^7=6, 384/2^7=3.
+
+
+## Read file names of images
+
+```{r}
+paths <- fs::dir_ls(
+  path = "../80_images",
+  regexp = ".*\\.dcm$",
+  recurse = TRUE
+) %>% 
+  as.character()
+```
+
+```{r}
+iList <- imageFileNames2ImageList(paths[1:8])
+n_images <- length(iList)
+  
+domainImage <- iList[[1]]
+domainImage
+
+pixeltype(domainImage)
+components(domainImage)
+dim(domainImage)
+spacing(domainImage)
+origin(domainImage)
+direction(domainImage)
+```
+
+
+## TODO: dimensions 836×496×1 -> 768×384
+
+*NOTE:* `ANTsRCore::cropIndices` does not work on multichannel images.
+
+*NOTE:* ANTsRNet::resampleTensorLike, ANTsRNet::resampleTensor,
+keras::array_reshape, reticulate::array_reshape
+
+```{r}
+crop_image_768x384 <- function(img) {
+  ll = c(34, 56, 1)
+  ur = ll + c(768 - 1, 384 - 1, 0)
+  ANTsRCore::cropIndices(img, ll, ur)
+}
+
+cimg <- crop_image_768x384(iList[[1]])
+cimg
+aimg <- as.array(cimg)
+dim(aimg)
+plot_array2d(aimg[3,,,1])
+```
+
+BUG: `antsImageWrite(slice, "x.nii.gz")` -- 
+this crashes RStudio Session.
+
+```{r}
+(p <- paths[[120]])
+img <- ANTsRCore::antsImageRead(p)
+channels <- ANTsRCore::splitChannels(img)
+
+slice <- ANTsRCore::extractSlice(channels[[1]], 1, 3)
+dim(slice)
+slice2 <- crop_image_768x384(slice)
+dim(slice2)
+arr <- as.array(slice2)
+
+plot_array2d(arr)
+# invisible(plot(slice2))
+```
+
+
+## TODO: set dimnames on X_train tensor / array
+
+```{r}
+ar <- array(1:24, dim = c(2, 3, 4))
+dimnames(ar)[[1]] <- c("A", "B")
+ar["A",,] == ar[1,,]
+ar["B",,] == ar[2,,]
+```
+
