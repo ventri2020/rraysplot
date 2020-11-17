@@ -23,8 +23,6 @@ library(devtools)
 library(fs)
 
 library(rraysplot)
-# source("R/plot_array2d.R")
-# source("R/images_info.R")
 ```
 
 
@@ -67,10 +65,19 @@ images: 384x192 and 192x96. Note that both dimensions 768x384 are divisble by 12
 
 ## Read Images Info
 
-```{r, rows.print=8}
-info <- images_info("../80_images", extension = "dcm") %>% 
-  dplyr::slice(1:8)
+```{r, rows.print=10}
+info <- images_info("../80_images", extension = "dcm")
 info
+```
+
+```{r, rows.print=10}
+info_mri <- info %>% filter(kind == "MRI")
+info_mri
+```
+
+```{r, rows.print=10}
+info_at <- info %>% filter(kind == "AT")
+info_at
 ```
 
 ```{r}
@@ -87,19 +94,65 @@ crop_image_wxh <- function(img, ll = c(34, 56), wh = c(768, 384)) {
 ```
 
 
-## Base images
+## MRI images
 
 ```{r}
-base_paths <- info %>% filter(kind == "MRI")
-iList <- imageFileNames2ImageList(base_paths[["file_path"]])
-n_images <- length(iList)
+mri_unet <- function(info, ll = c(34, 56), width_x_height = c(768, 384), channel = 1) {
+  crop_image_wxhx1 <- function(img, ll = ll, wh = wh) {
+    ll = c(ll, 1)                               # c(34, 56, 1)
+    ur = ll + c(width_x_height, 0) - c(1, 1, 0) # c(768 - 1, 384 - 1, 0)
+    ANTsRCore::cropIndices(img, ll, ur)
+  }
 
-Y_train <- array(
-  data = NA, 
-  dim = c(3, 768, 384, n_images)
-)
+  iList <- imageFileNames2ImageList(info[["file_path"]])
+  n_images <- length(iList)
+  
+  domainImage = ANTsRCore::makeImage(imagesize = width_x_height, voxval = 0)
+  dims = dim(domainImage)
+  
+  y_train <- array(
+    data = NA, 
+    dim = c(components(iList[[1]]), dims, n_images)
+  )
+  
+  K <- keras::backend()
+  array_crop <- purrr::compose(as.array, crop_image_wxhx1)
+  aList <- map(iList, array_crop, ll = ll, wh = wh)
+  
+  for (i in seq_along(aList)) {
+    y_train[,,,i] <- aList[[i]]
+  }
+  
+  y_train <- as.array(
+    K$permute_dimensions(y_train, pattern = c(3L, 1L, 2L, 0L))
+  )
+  
+  # str(y_train)
+  # str(info$patient)
+  dimnames(y_train)[[1]] <- info$patient
+  
+  y_train[,,,channel]
+}
 ```
 
+```{r}
+images <- mri_unet(info_mri)
+str(images)
+dimnames(images)
+```
+
+```{r figures2-side2, fig.show="hold", fig.asp=0.5, out.width="48%"}
+plot_array2d(images[5,,], title = dimnames(images)[[1]][[5]])
+plot_array2d(images[29,,], title = dimnames(images)[[1]][[29]])
+```
+
+```{r figures2-side3, fig.show="hold", fig.asp=0.5, out.width="48%"}
+plot_array2d(images[46,,], title = dimnames(images)[[1]][[46]])
+plot_array2d(images["700120",,], title = dimnames(images)[[1]][[46]])
+```
+
+
+## TODO
 
 ```{r}
 p <- info$file_path[[1]]
@@ -118,34 +171,3 @@ plot_array2d(aslice)
 invisible(plot(cslice, doCropping=F))
 ```
 
-```{r}
-K <- keras::backend()
-array_crop <- purrr::compose(as.array, crop_image_wxhx1)
-aList <- map(iList, array_crop)
-str(aList)
-seq_along(aList)
-
-for (i in seq_along(aList)) {
-  Y_train[,,,i] <- aList[[i]]
-}
-Y_train <- as.array(
-  K$permute_dimensions(Y_train, pattern = c(3L, 1L, 2L, 0L))
-)
-
-str(Y_train)
-
-dimnames(Y_train)[[1]] <- base_paths$patient
-dimnames(Y_train)[[1]]
-```
-
-```{r}
-dim(Y_train)
-dimnames(Y_train)[[1]]
-dim(Y_train[2,,,1])
-dim(Y_train["1023660",,,1])
-```
-
-```{r, figures2-side2, fig.show="hold", fig.asp=0.5, out.width="48%"}
-plot_array2d(Y_train[2,,,1])
-plot_array2d(Y_train["1023660",,,1])
-```
