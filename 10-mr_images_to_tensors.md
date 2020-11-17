@@ -64,20 +64,39 @@ info
 ``` r
 info_mri <- info %>% filter(kind == "MRI")
 info_mri
-#> # A tibble: 58 x 5
-#>    patient kind  type     series    file_path                                   
-#>    <chr>   <chr> <chr>    <chr>     <chr>                                       
-#>  1 1018642 MRI   image_b… ../80_im… ../80_images/1018642/image_base/1.2.840.191…
-#>  2 1023660 MRI   image_b… ../80_im… ../80_images/1023660/image_base/1.2.840.191…
-#>  3 1040979 MRI   image_b… ../80_im… ../80_images/1040979/image_base/1.2.840.191…
-#>  4 1041204 MRI   image_b… ../80_im… ../80_images/1041204/image_base/1.2.840.191…
-#>  5 1095912 MRI   image_b… ../80_im… ../80_images/1095912/image_base/1.2.840.191…
-#>  6 1176610 MRI   image_b… ../80_im… ../80_images/1176610/image_base/1.2.840.191…
-#>  7 1185364 MRI   image_b… ../80_im… ../80_images/1185364/image_base/1.2.840.191…
-#>  8 163855  MRI   image_b… ../80_im… ../80_images/163855/image_base/1.2.840.1910…
-#>  9 306001  MRI   image_b… ../80_im… ../80_images/306001/image_base/1.2.840.1910…
-#> 10 306637  MRI   image_b… ../80_im… ../80_images/306637/image_base/1.2.840.1910…
-#> # … with 48 more rows
+#> # A tibble: 80 x 5
+#>    patient    kind  type     series   file_path                                 
+#>    <chr>      <chr> <chr>    <chr>    <chr>                                     
+#>  1 1018642    MRI   image_b… ../80_i… ../80_images/1018642/image_base/1.2.840.1…
+#>  2 1023660    MRI   image_b… ../80_i… ../80_images/1023660/image_base/1.2.840.1…
+#>  3 1040979    MRI   image_b… ../80_i… ../80_images/1040979/image_base/1.2.840.1…
+#>  4 1041204    MRI   image_b… ../80_i… ../80_images/1041204/image_base/1.2.840.1…
+#>  5 1095912    MRI   image_b… ../80_i… ../80_images/1095912/image_base/1.2.840.1…
+#>  6 1110505-2… MRI   image_b… ../80_i… ../80_images/1110505-2011/image_base/1.2.…
+#>  7 1110505-2… MRI   image_b… ../80_i… ../80_images/1110505-2012/image_base/1.2.…
+#>  8 1176610    MRI   image_b… ../80_i… ../80_images/1176610/image_base/1.2.840.1…
+#>  9 1185364    MRI   image_b… ../80_i… ../80_images/1185364/image_base/1.2.840.1…
+#> 10 158894-20… MRI   image_b… ../80_i… ../80_images/158894-2016/image_base/1.2.8…
+#> # … with 70 more rows
+```
+
+``` r
+info_at <- info %>% filter(kind == "AT")
+info_at
+#> # A tibble: 80 x 5
+#>    patient    kind  type     series    file_path                                
+#>    <chr>      <chr> <chr>    <chr>     <chr>                                    
+#>  1 1018642    AT    dicom_c… ../80_im… ../80_images/1018642/dicom_color/1.2.840…
+#>  2 1023660    AT    dicom_c… ../80_im… ../80_images/1023660/dicom_color/1.2.840…
+#>  3 1040979    AT    dicom_c… ../80_im… ../80_images/1040979/dicom_color/1.2.840…
+#>  4 1041204    AT    dicom_c… ../80_im… ../80_images/1041204/dicom_color/1.2.840…
+#>  5 1095912    AT    dicom_c… ../80_im… ../80_images/1095912/dicom_color/1.2.840…
+#>  6 1110505-2… AT    dicom_c… ../80_im… ../80_images/1110505-2011/dicom_color/1.…
+#>  7 1110505-2… AT    dicom_c… ../80_im… ../80_images/1110505-2012/dicom_color/1.…
+#>  8 1176610    AT    dicom_c… ../80_im… ../80_images/1176610/dicom_color/1.2.840…
+#>  9 1185364    AT    dicom_c… ../80_im… ../80_images/1185364/dicom_color/1.2.840…
+#> 10 158894-20… AT    dicom_c… ../80_im… ../80_images/158894-2016/dicom_color/1.2…
+#> # … with 70 more rows
 ```
 
 ``` r
@@ -96,20 +115,17 @@ crop_image_wxh <- function(img, ll = c(34, 56), wh = c(768, 384)) {
 ## MRI images
 
 ``` r
-mri_unet <- function(info, kind = "mri", ll = c(34, 56), wh = c(768, 384), channel = 1) {
+mri_unet <- function(info, ll = c(34, 56), width_x_height = c(768, 384), channel = 1) {
   crop_image_wxhx1 <- function(img, ll = ll, wh = wh) {
-    ll = c(ll, 1)                        # c(34, 56, 1)
-    ur = ll + c(wh, 0) - c(1, 1, 0)      # c(768 - 1, 384 - 1, 0)
+    ll = c(ll, 1)                               # c(34, 56, 1)
+    ur = ll + c(width_x_height, 0) - c(1, 1, 0) # c(768 - 1, 384 - 1, 0)
     ANTsRCore::cropIndices(img, ll, ur)
   }
-  
-  ukind <- stringr::str_to_upper(kind)
-  
-  base_paths <- info %>% filter(kind == ukind)
-  iList <- imageFileNames2ImageList(base_paths[["file_path"]])
+
+  iList <- imageFileNames2ImageList(info[["file_path"]])
   n_images <- length(iList)
   
-  domainImage = ANTsRCore::makeImage(imagesize = wh, voxval = 0)
+  domainImage = ANTsRCore::makeImage(imagesize = width_x_height, voxval = 0)
   dims = dim(domainImage)
   
   y_train <- array(
@@ -128,20 +144,47 @@ mri_unet <- function(info, kind = "mri", ll = c(34, 56), wh = c(768, 384), chann
   y_train <- as.array(
     K$permute_dimensions(y_train, pattern = c(3L, 1L, 2L, 0L))
   )
-  dimnames(y_train)[[1]] <- base_paths$patient
+  
+  # str(y_train)
+  # str(info$patient)
+  dimnames(y_train)[[1]] <- info$patient
   
   y_train[,,,channel]
 }
 ```
 
 ``` r
-images <- mri_unet(info, kind = "MRI")
+images <- mri_unet(info_mri)
 str(images)
-#>  num [1:58, 1:768, 1:384] 0 0 0 0 0 0 0 0 0 0 ...
+#>  num [1:80, 1:768, 1:384] 0 0 0 0 0 0 0 0 0 0 ...
 #>  - attr(*, "dimnames")=List of 3
-#>   ..$ : chr [1:58] "1018642" "1023660" "1040979" "1041204" ...
+#>   ..$ : chr [1:80] "1018642" "1023660" "1040979" "1041204" ...
 #>   ..$ : NULL
 #>   ..$ : NULL
+dimnames(images)
+#> [[1]]
+#>  [1] "1018642"      "1023660"      "1040979"      "1041204"      "1095912"     
+#>  [6] "1110505-2011" "1110505-2012" "1176610"      "1185364"      "158894-2016" 
+#> [11] "158894-2018"  "163855"       "197929-2015"  "254582-2014"  "254582-2016" 
+#> [16] "281774-2018"  "306001"       "306637"       "307629"       "330238"      
+#> [21] "376426"       "377549"       "387800"       "389728"       "400295"      
+#> [26] "415676"       "547766"       "552705"       "554667-2013"  "554667-2014" 
+#> [31] "578317"       "579124"       "600725-2013"  "600725-2019"  "626604"      
+#> [36] "648995-2011"  "648995-2013"  "648995-2014"  "661579"       "665924"      
+#> [41] "678810"       "683412-2015"  "683412-2016"  "683412-2019"  "690256"      
+#> [46] "700120"       "712846"       "715432"       "723887-2016"  "723887-2018" 
+#> [51] "754337"       "764045"       "795905"       "797208"       "797610"      
+#> [56] "801802"       "802551"       "803817"       "804568"       "806365"      
+#> [61] "835693"       "840780"       "843037"       "853661"       "854387"      
+#> [66] "858488"       "871006"       "873863"       "876730"       "878740"      
+#> [71] "879820"       "882360-2016"  "882360-2017"  "883616"       "887603"      
+#> [76] "894688"       "902756"       "914522"       "918538"       "924243"      
+#> 
+#> [[2]]
+#> NULL
+#> 
+#> [[3]]
+#> NULL
 ```
 
 ``` r

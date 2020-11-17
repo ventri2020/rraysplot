@@ -97,58 +97,103 @@ crop_image_wxh <- function(img, ll = c(34, 56), wh = c(768, 384)) {
 ## MRI images
 
 ```{r}
-mri_unet <- function(info, ll = c(34, 56), width_x_height = c(768, 384), channel = 1) {
-  crop_image_wxhx1 <- function(img, ll = ll, wh = wh) {
+mri_list <- imageFileNames2ImageList(info_mri[["file_path"]])
+length(mri_list)
+```
+
+```{r}
+crop_image_wxhx1 <- function(img, ll = c(34, 56), wh = c(768, 384)) {
+    ll = c(ll, 1)                   # c(34, 56, 1)
+    ur = ll + c(wh, 0) - c(1, 1, 0) # c(768 - 1, 384 - 1, 0)
+    ANTsRCore::cropIndices(img, ll, ur)
+}
+
+get_channel <- function(img, channel = 1) {
+  ANTsRCore::splitChannels(img)[[channel]]
+}
+  
+(img = crop_image_wxhx1(mri_list[[1]]))
+(channel1 = get_channel(img, channel = 1))
+(slice = ANTsRCore::extractSlice(channel1, slice = 1, direction = 3))
+(smask = ANTsRCore::getMask(slice))
+```
+
+```{r}
+plot_array2d(as.array(smask))
+invisible(plot(slice, smask, doCropping = FALSE))
+```
+
+```{r}
+images_to_tensor_mask <- function(iList, ll = c(34, 56), width_x_height = c(768, 384), channel = 1) {
+  get_channel <- function(img, channel = 3) {
+    ANTsRCore::splitChannels(img)[[channel]]
+  }
+  get_mask <- purrr::compose(ANTsRCore::getMask, get_channel)
+  
+  mList <- purrr::map(iList, get_mask, channel = 1)
+  mList
+}
+```
+
+```{r}
+images_to_tensor <- function(iList, lower_left = c(34, 56), width_x_height = c(768, 384), channel = 1) {
+  crop_image_wxhx1 <- function(img, ll = lower_left, wh = width_x_height) {
     ll = c(ll, 1)                               # c(34, 56, 1)
     ur = ll + c(width_x_height, 0) - c(1, 1, 0) # c(768 - 1, 384 - 1, 0)
     ANTsRCore::cropIndices(img, ll, ur)
   }
 
-  iList <- imageFileNames2ImageList(info[["file_path"]])
   n_images <- length(iList)
-  
+    
   domainImage = ANTsRCore::makeImage(imagesize = width_x_height, voxval = 0)
   dims = dim(domainImage)
-  
+
   y_train <- array(
-    data = NA, 
+    data = NA,
     dim = c(components(iList[[1]]), dims, n_images)
   )
-  
-  K <- keras::backend()
+
   array_crop <- purrr::compose(as.array, crop_image_wxhx1)
-  aList <- map(iList, array_crop, ll = ll, wh = wh)
-  
+  aList <- map(iList, array_crop, ll = lower_left, wh = width_x_height)
+
   for (i in seq_along(aList)) {
     y_train[,,,i] <- aList[[i]]
   }
-  
+
+  K <- keras::backend()  
+
   y_train <- as.array(
     K$permute_dimensions(y_train, pattern = c(3L, 1L, 2L, 0L))
   )
-  
-  # str(y_train)
-  # str(info$patient)
+
   dimnames(y_train)[[1]] <- info$patient
-  
+
   y_train[,,,channel]
 }
 ```
 
+
 ```{r}
-images <- mri_unet(info_mri)
-str(images)
-dimnames(images)
+train <- images_to_tensor(mri_list)
+str(train)
 ```
 
+```{r}
+mask <- images_to_tensor_mask(info_mri)
+str(mask)
+```
+
+
+## Check if dimnames are parallel to image indexes
+
 ```{r figures2-side2, fig.show="hold", fig.asp=0.5, out.width="48%"}
-plot_array2d(images[5,,], title = dimnames(images)[[1]][[5]])
-plot_array2d(images[29,,], title = dimnames(images)[[1]][[29]])
+plot_array2d(train[5,,], title = dimnames(train)[[1]][[5]])
+plot_array2d(train[29,,], title = dimnames(train)[[1]][[29]])
 ```
 
 ```{r figures2-side3, fig.show="hold", fig.asp=0.5, out.width="48%"}
-plot_array2d(images[46,,], title = dimnames(images)[[1]][[46]])
-plot_array2d(images["700120",,], title = dimnames(images)[[1]][[46]])
+plot_array2d(train[46,,], title = dimnames(train)[[1]][[46]])
+plot_array2d(train["700120",,], title = dimnames(train)[[1]][[46]])
 ```
 
 
