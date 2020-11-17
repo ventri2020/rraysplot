@@ -11,7 +11,7 @@ in „R Markdown: The Definitive Guide” by Yihui Xie, J. J. Allaire, Garrett G
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
-  fig.path = "figures/devworkflow-",
+  fig.path = "man/figures/devworkflow-",
   out.width = "100%"
 )
 

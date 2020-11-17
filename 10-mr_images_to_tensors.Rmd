@@ -11,7 +11,7 @@ keras::array_reshape, reticulate::array_reshape
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
-  fig.path = "man/figures/00-dw-",
+  fig.path = "man/figures/10_images_to_tensors",
   out.width = "100%"
 )
 
