@@ -1,9 +1,20 @@
-images_info <- function(dicom_dir, extension = "dcm") {
+#' Return a list of five 2D arrays
+#'
+#' Create five named 2D arrays: checker, urandom, zeros, ones, rectangle.
+#'
+#' @param images_dir character
+#' @param extension character
+#'
+#' @return tibble
+#' @export
+#' @examples
+#' images_info("../80_images", extension = "dcm")
+images_info <- function(images_dir, extension = "dcm") {
   image = "image_base|dicom_color|dicom_red|dicom_blue"
-  splitter = glue::glue("^({dicom_dir})/([0-9]+)/({image})/.*\\.(?:{extension})$")
+  splitter = glue::glue("^({images_dir})/([0-9]+)/({image})/.*\\.(?:{extension})$")
 
   tibble::tibble(
-    file_name = fs::dir_ls(
+    file_path = fs::dir_ls(
       path = "../80_images",
       regexp = glue::glue(".*\\.({extension}$)"),
       recurse = TRUE
@@ -12,20 +23,23 @@ images_info <- function(dicom_dir, extension = "dcm") {
       stringr::str_subset(image)
   ) %>%
     tidyr::extract(
-      col = file_name,
-      into = c("series", "patient", "image"),
+      col = file_path,
+      into = c("series", "patient", "type"),
       regex = splitter,
       remove = FALSE
     ) %>%
     dplyr::mutate(
       kind = dplyr::recode(
-        image,
-        image_base = "base",
-        dicom_color = "fat",
-        dicom_red = "subcutaneous_fat",
-        dicom_blue = "visceral_fat"
+        type,
+        image_base = "MRI",
+        dicom_color = "AT",
+        dicom_red = "SCAT",
+        dicom_blue = "VSAT"
       )
     ) %>%
     dplyr::arrange(patient, kind) %>%
-    select(3, 5, 4, 2, 1)
+    dplyr::select(3, 5, 4, 2, 1)
 }
+
+# What is the naming standard for path components?
+# https://stackoverflow.com/questions/2235173/what-is-the-naming-standard-for-path-components

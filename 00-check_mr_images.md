@@ -1,54 +1,36 @@
 Check MR Images
 ================
-11/12/2020
+17.11.2020
 
-## Image data [2.2.11](https://livebook.manning.com/book/deep-learning-with-r/chapter-2/48)
-
-Images typically have three dimensions:
-
-    height × width × color channels
-
-Although grayscale images have only a single color channel and could
-thus be stored in 2D tensors, by convention image tensors are always 3D,
-with a one-dimensional color channel for grayscale images.
-
-A batch of 80 grayscale images of size 768×384 could thus be stored in a
-tensor of shape
-
-    (80, 768, 384, 1)
-
-and a batch of 80 color images could be stored in a tensor of shape
-
-    (80, 768, 384, 3)
-
-*NOTE:* 768/2^7=6, 384/2^7=3.
-
-*NOTE:* ANTsRNet::resampleTensorLike, ANTsRNet::resampleTensor,
-keras::array\_reshape, reticulate::array\_reshape
-
-*TODO 1*: Convert to function: images\_path
-
-*TODO 2*: Extract from paths: image\_id, kind -&gt; SCAT, VSAT, …
-
-## Check provided image data
+## Read file names of images
 
 ``` r
-paths <- fs::dir_ls(
-  path = "../80_images",
-  regexp = ".*\\.dcm$",
-  recurse = TRUE
-) %>% 
-  as.character()
+info <- images_info("../80_images", extension = "dcm")
+info
+#> # A tibble: 320 x 5
+#>    patient kind  type      series    file_path                                  
+#>    <chr>   <chr> <chr>     <chr>     <chr>                                      
+#>  1 1018642 AT    dicom_co… ../80_im… ../80_images/1018642/dicom_color/1.2.840.1…
+#>  2 1018642 MRI   image_ba… ../80_im… ../80_images/1018642/image_base/1.2.840.19…
+#>  3 1018642 SCAT  dicom_red ../80_im… ../80_images/1018642/dicom_red/1.2.840.191…
+#>  4 1018642 VSAT  dicom_bl… ../80_im… ../80_images/1018642/dicom_blue/1.2.840.19…
+#>  5 1023660 AT    dicom_co… ../80_im… ../80_images/1023660/dicom_color/1.2.840.1…
+#>  6 1023660 MRI   image_ba… ../80_im… ../80_images/1023660/image_base/1.2.840.19…
+#>  7 1023660 SCAT  dicom_red ../80_im… ../80_images/1023660/dicom_red/1.2.840.191…
+#>  8 1023660 VSAT  dicom_bl… ../80_im… ../80_images/1023660/dicom_blue/1.2.840.19…
+#>  9 1040979 AT    dicom_co… ../80_im… ../80_images/1040979/dicom_color/1.2.840.1…
+#> 10 1040979 MRI   image_ba… ../80_im… ../80_images/1040979/image_base/1.2.840.19…
+#> # … with 310 more rows
 ```
 
-There should be 80\*4=320 images.
+## There should be 80\*4=320 images
 
 ``` r
-testthat::expect_equal(length(paths), 80 * 4)
+testthat::expect_equal(length(info$file_path), 80 * 4)
 ```
 
 ``` r
-iList <- imageFileNames2ImageList(paths)
+iList <- ANTsRCore::imageFileNames2ImageList(info$file_path)
 n_images <- length(iList)
   
 domainImage <- iList[[1]]
@@ -60,7 +42,7 @@ domainImage
 #>   Voxel Spacing       : 1x1x1 
 #>   Origin              : 0 0 0 
 #>   Direction           : 1 0 0 0 1 0 0 0 1 
-#>   Filename           : ../80_images/1018642/dicom_blue/1.2.840.19104.20483.007.401004.1.637400293265047254.dcm
+#>   Filename           : ../80_images/1018642/dicom_color/1.2.840.19104.20483.007.401002.1.637400293148711933.dcm
 ```
 
 ## All images must have the same attributes
@@ -131,58 +113,4 @@ testthat::expect_identical(origins, expected_origins)
 directions <- purrr::map(iList, direction)
 expected_directions <- rep(list(direction(domainImage)), n_images)
 testthat::expect_identical(directions, expected_directions)
-```
-
-## TODO: dimensions 836×496×1 -&gt; 768×384
-
-NOTE: `ANTsRCore::cropIndices` does not work on multichannel images.
-
-``` r
-crop_image_768x384 <- function(img) {
-  ll = c(34, 56)
-  ur = ll + c(768 - 1, 384 - 1)
-  ANTsRCore::cropIndices(img, ll, ur)
-}
-```
-
-BUG: `antsImageWrite(slice, "x.nii.gz")` – this crashes RStudio Session.
-
-``` r
-(p <- paths[[120]])
-#> [1] "../80_images/554667-2014/image_base/1.2.840.19104.20483.007.1201.1.637398377875179013.dcm"
-img <- ANTsRCore::antsImageRead(p)
-channels <- ANTsRCore::splitChannels(img)
-
-slice <- ANTsRCore::extractSlice(channels[[1]], 1, 3)
-dim(slice)
-#> [1] 836 495
-slice2 <- crop_image_768x384(slice)
-dim(slice2)
-#> [1] 768 384
-arr <- as.array(slice2)
-
-plot_array2d(arr)
-```
-
-<img src="man/figures/00-dw-unnamed-chunk-13-1.png" width="100%" />
-
-``` r
-# invisible(plot(slice2))
-```
-
-## TODO: set dimnames on X\_train tensor / array
-
-``` r
-ar <- array(1:24, dim = c(2, 3, 4))
-dimnames(ar)[[1]] <- c("A", "B")
-ar["A",,] == ar[1,,]
-#>      [,1] [,2] [,3] [,4]
-#> [1,] TRUE TRUE TRUE TRUE
-#> [2,] TRUE TRUE TRUE TRUE
-#> [3,] TRUE TRUE TRUE TRUE
-ar["B",,] == ar[2,,]
-#>      [,1] [,2] [,3] [,4]
-#> [1,] TRUE TRUE TRUE TRUE
-#> [2,] TRUE TRUE TRUE TRUE
-#> [3,] TRUE TRUE TRUE TRUE
 ```

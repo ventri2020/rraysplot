@@ -24,4 +24,6 @@ Imports:
     scales,
     tibble,
     fs,
-    ANTsRCore
+    ANTsRCore,
+    glue,
+    stringr

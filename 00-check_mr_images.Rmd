@@ -1,6 +1,6 @@
 ---
 title: "Check MR Images"
-date: "12/11/2020"
+date: "17.11.2020"
 output: github_document
 ---
 
@@ -8,7 +8,7 @@ output: github_document
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
-  fig.path = "man/figures/00-dw-",
+  fig.path = "man/figures/00-check_mr_images-",
   out.width = "100%"
 )
 
@@ -19,33 +19,27 @@ library(ANTsRCore)
 
 library(devtools)
 library(fs)
+
+library(rraysplot)
 ```
-
-*TODO 1*: Convert to function: images_path
-
-*TODO 2*: Extract from paths: image_id, kind -> SCAT, VSAT, ...
 
 
 ## Read file names of images
 
-```{r}
-paths <- fs::dir_ls(
-  path = "../80_images",
-  regexp = ".*\\.dcm$",
-  recurse = TRUE
-) %>% 
-  as.character()
+```{r, rows.print=8}
+info <- images_info("../80_images", extension = "dcm")
+info
 ```
 
 
 ## There should be 80*4=320 images
 
 ```{r}
-testthat::expect_equal(length(paths), 80 * 4)
+testthat::expect_equal(length(info$file_path), 80 * 4)
 ```
 
 ```{r}
-iList <- imageFileNames2ImageList(paths)
+iList <- ANTsRCore::imageFileNames2ImageList(info$file_path)
 n_images <- length(iList)
   
 domainImage <- iList[[1]]

@@ -20,11 +20,12 @@ knitr::opts_chunk$set(
 library(tidyverse)
 library(ANTsRCore)
 
-source("R/plot_array2d.R")
-source("R/images_info.R")
-
 library(devtools)
 library(fs)
+
+library(rraysplot)
+# source("R/plot_array2d.R")
+# source("R/images_info.R")
 ```
 
 
