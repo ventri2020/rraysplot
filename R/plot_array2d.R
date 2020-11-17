@@ -80,3 +80,12 @@ plot_array2d <- function(arrList, title = NULL, title_size = 24) {
       legend.position = "none"
     )
 }
+
+#' @export
+#' @rdname plot_array2d
+#' @param x character path of image or an object of class antsImage
+#' @param title character
+#' @param title_size numeric
+plot_antsImage <- function(x, title, title_size) {
+  ANTsRCore::check_ants(x)
+}
