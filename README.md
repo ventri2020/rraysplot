@@ -52,7 +52,7 @@ plot_array2d(list(ch5, sq5))
 plot_array2d(list(ch5, o5, sq5))
 plot_array2d(list(ch5, r5, z5))
 
-d5 = rlang::duplicate(z5)
+d5 = z5
 d5[1, 1] = 1
 d5[3, 3] = 0.75
 d5[5, 5] = 0.5
