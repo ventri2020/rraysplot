@@ -104,7 +104,7 @@ plot_array2d(aslice)
 invisible(plot(cslice, doCropping=F))
 ```
 
-<img src="man/figures/10_images_to_tensorsfigures2-side1-1.png" width="48%" /><img src="man/figures/10_images_to_tensorsfigures2-side1-2.png" width="48%" />
+<img src="man/figures/10_images_to_tensors-figures2-side1-1.png" width="48%" /><img src="man/figures/10_images_to_tensors-figures2-side1-2.png" width="48%" />
 
 ``` r
 K <- keras::backend()
@@ -148,4 +148,4 @@ plot_array2d(Y_train[2,,,1])
 plot_array2d(Y_train["1023660",,,1])
 ```
 
-<img src="man/figures/10_images_to_tensorsfigures2-side2-1.png" width="48%" /><img src="man/figures/10_images_to_tensorsfigures2-side2-2.png" width="48%" />
+<img src="man/figures/10_images_to_tensors-figures2-side2-1.png" width="48%" /><img src="man/figures/10_images_to_tensors-figures2-side2-2.png" width="48%" />

@@ -10,13 +10,13 @@ output: github_document
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
-  fig.path = "man/figures/10_images_to_tensors",
+  fig.path = "man/figures/10_images_to_tensors-",
   out.width = "100%"
 )
 
 `%>%` <- purrr::`%>%`
 
-library(tidyverse)
+library(tidyverse, warn.conflicts = FALSE)
 library(ANTsRCore)
 
 library(devtools)
