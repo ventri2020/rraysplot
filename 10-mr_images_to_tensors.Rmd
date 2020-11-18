@@ -23,14 +23,15 @@ library(devtools)
 library(fs)
 
 library(rraysplot)
+packageVersion("rraysplot")
 ```
 
 
 ## Image data for U-Net
 
 Source [2.2.11 Data representations for neural networks](https://livebook.manning.com/book/deep-learning-with-r/chapter-2/48)
-in [Deep Learning with R](https://www.manning.com/books/deep-learning-with-r) by
-François Chollet with J. J. Allaire.
+in [Deep Learning with R](https://www.manning.com/books/deep-learning-with-r)
+by François Chollet with J. J. Allaire.
 
 Images typically have three dimensions:
 ```
@@ -58,65 +59,181 @@ and a batch of 80 mask --
 
 ## Important Note
 
-We will crop all images to 768x384 and prepare additional data with resampled (smaller)
-images: 384x192 and 192x96. Note that both dimensions 768x384 are divisble by 128
+We will crop all images to 768x384 and prepare additional
+data with resampled (smaller) images: 384x192 and 192x96.
+Note that both dimensions 768x384 are divisble by 128
 (768/2^7=6, 384/2^7=3).
 
 
 ## Read Images Info
 
-```{r, rows.print=10}
+```{r, rows.print=8}
 info <- images_info("../80_images", extension = "dcm")
 info
 ```
 
-```{r, rows.print=10}
+```{r, rows.print=4}
 info_mri <- info %>% filter(kind == "MRI")
 info_mri
 ```
 
-```{r, rows.print=10}
-info_at <- info %>% filter(kind == "AT")
-info_at
+```{r, rows.print=4}
+info_scat <- info %>% filter(kind == "SCAT")
+info_scat
 ```
 
+```{r, rows.print=4}
+info_vsat <- info %>% filter(kind == "VSAT")
+info_vsat
+```
+
+
+## Helper functions
+
 ```{r}
-crop_image_wxhx1 <- function(img, ll = c(34, 56), wh = c(768, 384)) {
-  ll = c(ll, 1)                        # c(34, 56, 1)
-  ur = ll + c(wh, 0) - c(1, 1, 0)      # c(768 - 1, 384 - 1, 0)
+crop_image_wxhx1 <- function(img, ll = c(0, 0), wh = c(768, 384)) {
+  ll = c(ll, 1)
+  # c(34, 56, 1)
+  ur = ll + c(wh, 0) - c(1, 1, 0)
+  # c(768 - 1, 384 - 1, 0)
   ANTsRCore::cropIndices(img, ll, ur)
 }
 
-crop_image_wxh <- function(img, ll = c(34, 56), wh = c(768, 384)) {
-  ur = ll + wh - c(1, 1)               # c(768 - 1, 384 - 1)
-  ANTsRCore::cropIndices(img, ll, ur)
-}
-```
-
-
-## MRI images
-
-```{r}
-mri_list <- imageFileNames2ImageList(info_mri[["file_path"]])
-length(mri_list)
+# crop_image_wxhx1(img, ll = c(34, 56), wh = c(768, 384))
 ```
 
 ```{r}
-crop_image_wxhx1 <- function(img, ll = c(34, 56), wh = c(768, 384)) {
-    ll = c(ll, 1)                   # c(34, 56, 1)
-    ur = ll + c(wh, 0) - c(1, 1, 0) # c(768 - 1, 384 - 1, 0)
-    ANTsRCore::cropIndices(img, ll, ur)
-}
-
 get_channel <- function(img, channel = 1) {
   ANTsRCore::splitChannels(img)[[channel]]
 }
-  
-(img = crop_image_wxhx1(mri_list[[1]]))
-(channel1 = get_channel(img, channel = 1))
-(slice = ANTsRCore::extractSlice(channel1, slice = 1, direction = 3))
-(smask = ANTsRCore::getMask(slice))
 ```
+
+```{r}
+imageList2sliceList <- function(
+    iList,
+    channel = 1,
+    z_slice = 1,
+    do_cropping = TRUE,
+    lower_left = c(34, 56), 
+    width_x_height = c(768, 384)
+) {
+  if (do_cropping == TRUE) {
+    iList <- purrr::map(
+      iList,
+      crop_image_wxhx1, ll = lower_left, wh = width_x_height
+    )
+  }
+  iList <- purrr::map(iList, get_channel, ch = channel)
+  iList <- purrr::map(
+    iList, 
+    ANTsRCore::extractSlice, slice = z_slice, direction = 3
+  ) 
+}
+```
+
+```{r}
+imageList2MaskList <- function(iList, clean_up = 2) {
+  purrr::map(iList, ANTsRCore::getMask, cleanup = clean_up)
+}
+```
+
+
+## Create Images and Mask Lists
+
+```{r}
+mri_list  <- imageFileNames2ImageList(info_mri[["file_path"]]) %>%
+  imageList2sliceList(channel = 1)
+scat_list <- imageFileNames2ImageList(info_scat[["file_path"]]) %>%
+  imageList2sliceList(channel = 1)
+vsat_list <- imageFileNames2ImageList(info_vsat[["file_path"]]) %>%
+  imageList2sliceList(channel = 3)
+mask_list <- imageList2MaskList(mri_list, clean_up = 2)
+```
+
+```{r}
+testthat::expect_equal(length(mri_list), 80)
+testthat::expect_equal(length(mask_list), 80)
+testthat::expect_equal(length(scat_list), 80)
+testthat::expect_equal(length(vsat_list), 80)
+```
+
+
+## Check Images
+
+```{r ilist-1, fig.show="hold", fig.asp=1, out.width="33%"}
+i = 49
+invisible(plot(mri_list[[i]], mask_list[[i]], alpha = 0.5))
+invisible(plot(vsat_list[[i]]))
+invisible(plot(scat_list[[i]]))
+```
+## [Alpha blending](https://en.wikipedia.org/wiki/Alpha_compositing#Alpha_blending_)
+
+If the destination background is opaque, $\text{image}_A = 1$:
+$$
+\text{out}_{\rm RGB} = 
+  \alpha \text{mask} + (1 - \alpha) \text{image}_{\rm RGB}
+$$
+```{r}
+i = 2
+alpha = 0.5
+
+mri <- mri_list[[i]]
+mask <- mask_list[[i]]
+
+range(mri)
+unique(mask)
+
+mri <- mri * mask
+mrv <- as.numeric(mri/255)
+mv <- as.numeric(mask)
+
+image_RGB <- RGB(R = mrv, G = mrv, B = mrv)
+mask_RGB <- RGB(R = mv, G = 0, B = 0)
+
+# out_RGB <- alpha * mask_RGB + (1 - alpha) * image_RGB
+out_RGB <- colorspace::mixcolor(alpha, image_RGB, mask_RGB)
+out_hex <- hex(out_RGB)
+```
+
+```{r}
+d <- dim(mask)
+
+dt <- tibble::tibble(
+  y = rev(rep(1:d[2], each = d[1])),
+  x = rep(1:d[1], times = d[2])
+) %>%
+  dplyr::mutate(z = out_hex)
+
+dt %>% ggplot2::ggplot(ggplot2::aes(x, y, fill = out_hex)) +
+    ggplot2::geom_raster() +
+    ggplot2::labs(
+      title = "colorspace",
+      x = NULL,
+      y = NULL
+    ) +
+    ggplot2::scale_fill_manual(
+      values = as.character(levels(factor(out_hex)))
+    ) +
+    # remove gray panel from the background
+    ggplot2::coord_fixed(1, expand = FALSE) +
+    ggplot2::theme(
+      axis.ticks = ggplot2::element_blank(),
+      axis.text = ggplot2::element_blank(),
+      plot.title = ggplot2::element_text(
+        margin = ggplot2::margin(t = 8, b = 16), # ?margin
+        size = 24,
+        lineheight = 1,
+        face = "bold",
+        colour = "#f04747",
+        hjust = 0.5
+      ),
+      legend.position = "none"
+    )
+```
+
+
+
+## TODO
 
 ```{r}
 plot_array2d(as.array(smask))
@@ -137,12 +254,6 @@ images_to_tensor_mask <- function(iList, ll = c(34, 56), width_x_height = c(768,
 
 ```{r}
 images_to_tensor <- function(iList, lower_left = c(34, 56), width_x_height = c(768, 384), channel = 1) {
-  crop_image_wxhx1 <- function(img, ll = lower_left, wh = width_x_height) {
-    ll = c(ll, 1)                               # c(34, 56, 1)
-    ur = ll + c(width_x_height, 0) - c(1, 1, 0) # c(768 - 1, 384 - 1, 0)
-    ANTsRCore::cropIndices(img, ll, ur)
-  }
-
   n_images <- length(iList)
     
   domainImage = ANTsRCore::makeImage(imagesize = width_x_height, voxval = 0)
