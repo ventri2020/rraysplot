@@ -65,29 +65,6 @@ Note that both dimensions 768x384 are divisble by 128
 (768/2^7=6, 384/2^7=3).
 
 
-## Read Images Info
-
-```{r, rows.print=8}
-info <- images_info("../80_images", extension = "dcm")
-info
-```
-
-```{r, rows.print=4}
-info_mri <- info %>% filter(kind == "MRI")
-info_mri
-```
-
-```{r, rows.print=4}
-info_scat <- info %>% filter(kind == "SCAT")
-info_scat
-```
-
-```{r, rows.print=4}
-info_vsat <- info %>% filter(kind == "VSAT")
-info_vsat
-```
-
-
 ## Helper functions
 
 ```{r}
@@ -98,8 +75,6 @@ crop_image_wxhx1 <- function(img, ll = c(0, 0), wh = c(768, 384)) {
   # c(768 - 1, 384 - 1, 0)
   ANTsRCore::cropIndices(img, ll, ur)
 }
-
-# crop_image_wxhx1(img, ll = c(34, 56), wh = c(768, 384))
 ```
 
 ```{r}
@@ -138,6 +113,27 @@ imageList2MaskList <- function(iList, clean_up = 2) {
 ```
 
 
+## Read Images Info
+
+```{r}
+info <- images_info("../80_images", extension = "dcm")
+```
+
+```{r, rows.print=2}
+info_mri <- info %>% filter(kind == "MRI")
+info_mri
+```
+
+```{r, rows.print=2}
+info_scat <- info %>% filter(kind == "SCAT")
+info_scat
+```
+
+```{r, rows.print=2}
+info_vsat <- info %>% filter(kind == "VSAT")
+info_vsat
+```
+
 ## Create Images and Mask Lists
 
 ```{r}
@@ -158,28 +154,29 @@ testthat::expect_equal(length(vsat_list), 80)
 ```
 
 
-## Check Images
-
-```{r ilist-1, fig.show="hold", fig.asp=1, out.width="33%"}
-i = 49
-invisible(plot(mri_list[[i]], mask_list[[i]], alpha = 0.5))
-invisible(plot(vsat_list[[i]]))
-invisible(plot(scat_list[[i]]))
-```
 ## [Alpha blending](https://en.wikipedia.org/wiki/Alpha_compositing#Alpha_blending_)
 
 If the destination background is opaque, $\text{image}_A = 1$:
 $$
-\text{out}_{\rm RGB} = 
-  \alpha \text{mask} + (1 - \alpha) \text{image}_{\rm RGB}
+\text{blended image}_{\rm RGB} = 
+   (1 - \alpha)\cdot \text{image}_{\rm RGB} + 
+      \alpha\cdot\text{mask}_{\rm RGB}
 $$
+
+### Blending antsImages
+
 ```{r}
 i = 2
-alpha = 0.5
+alpha = 0.15
+# alpha == 0  # transparent mask
+# alpha == 1  # opaque mask
 
 mri <- mri_list[[i]]
 mask <- mask_list[[i]]
 
+mask[mask == 0] <- NA
+
+class(mri)
 range(mri)
 unique(mask)
 
@@ -187,12 +184,14 @@ mri <- mri * mask
 mrv <- as.numeric(mri/255)
 mv <- as.numeric(mask)
 
-image_RGB <- RGB(R = mrv, G = mrv, B = mrv)
-mask_RGB <- RGB(R = mv, G = 0, B = 0)
+class(mrv)
 
-# out_RGB <- alpha * mask_RGB + (1 - alpha) * image_RGB
+image_RGB <- colorspace::RGB(R = mrv, G = mrv, B = mrv)
+mask_RGB <- colorspace::RGB(R = mv, G = mv, B = 0)
+
+# (1 - alpha) * image_RGB + alpha * mask_RGB
 out_RGB <- colorspace::mixcolor(alpha, image_RGB, mask_RGB)
-out_hex <- hex(out_RGB)
+out_hex <- colorspace::hex(out_RGB)
 ```
 
 ```{r}
@@ -204,15 +203,16 @@ dt <- tibble::tibble(
 ) %>%
   dplyr::mutate(z = out_hex)
 
-dt %>% ggplot2::ggplot(ggplot2::aes(x, y, fill = out_hex)) +
-    ggplot2::geom_raster() +
+dt %>% ggplot2::ggplot(ggplot2::aes(x, y)) +
+    ggplot2::geom_raster(aes(fill = out_hex)) +
     ggplot2::labs(
       title = "colorspace",
       x = NULL,
       y = NULL
     ) +
     ggplot2::scale_fill_manual(
-      values = as.character(levels(factor(out_hex)))
+      values = as.character(levels(factor(out_hex))),
+      na.value="green"
     ) +
     # remove gray panel from the background
     ggplot2::coord_fixed(1, expand = FALSE) +
@@ -220,8 +220,8 @@ dt %>% ggplot2::ggplot(ggplot2::aes(x, y, fill = out_hex)) +
       axis.ticks = ggplot2::element_blank(),
       axis.text = ggplot2::element_blank(),
       plot.title = ggplot2::element_text(
-        margin = ggplot2::margin(t = 8, b = 16), # ?margin
-        size = 24,
+        margin = ggplot2::margin(t = 8, b = 16), # see ?margin
+        size = 18,
         lineheight = 1,
         face = "bold",
         colour = "#f04747",
@@ -232,16 +232,24 @@ dt %>% ggplot2::ggplot(ggplot2::aes(x, y, fill = out_hex)) +
 ```
 
 
-
-## TODO
+# Images Lists to Tensors
 
 ```{r}
-plot_array2d(as.array(smask))
-invisible(plot(slice, smask, doCropping = FALSE))
+i = 53
+
+mask <- mask_list[[i]]
+mri <- mri_list[[i]] * mask
+scat <- scat_list[[i]] * mask
+vsat <- vsat_list[[i]] * mask
+
+
+
 ```
 
 ```{r}
-images_to_tensor_mask <- function(iList, ll = c(34, 56), width_x_height = c(768, 384), channel = 1) {
+images_to_tensor_mask <- function(
+    iList, ll = c(34, 56), width_x_height = c(768, 384), channel = 1
+) {
   get_channel <- function(img, channel = 3) {
     ANTsRCore::splitChannels(img)[[channel]]
   }
