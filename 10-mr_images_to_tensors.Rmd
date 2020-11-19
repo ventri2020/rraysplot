@@ -4,8 +4,6 @@ date: "17.11.2020"
 output: github_document
 ---
 
-*NOTE:* Use these functions `ANTsRNet::resampleTensor`, `reticulate::array_reshape`
-
 ```{r, include = FALSE, message=FALSE, warning=FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
@@ -20,6 +18,7 @@ library(tidyverse, warn.conflicts = FALSE)
 library(ANTsRCore)
 
 library(devtools)
+library(lobstr)
 library(fs)
 
 library(rraysplot)
@@ -134,6 +133,7 @@ info_vsat <- info %>% filter(kind == "VSAT")
 info_vsat
 ```
 
+
 ## Create Images and Mask Lists
 
 ```{r}
@@ -142,9 +142,12 @@ mri_list  <- imageFileNames2ImageList(info_mri[["file_path"]]) %>%
 mask_list <- imageList2MaskList(mri_list, clean_up = 2)
 
 scat_list <- imageFileNames2ImageList(info_scat[["file_path"]]) %>%
-  imageList2sliceList(channel = 1)
+  imageList2sliceList(channel = 1) %>%
+  imageList2MaskList(clean_up = 0)
+
 vsat_list <- imageFileNames2ImageList(info_vsat[["file_path"]]) %>%
-  imageList2sliceList(channel = 3)
+  imageList2sliceList(channel = 3) %>%
+  imageList2MaskList(clean_up = 0)
 ```
 
 ```{r}
@@ -152,6 +155,40 @@ testthat::expect_equal(length(mri_list), 80)
 testthat::expect_equal(length(mask_list), 80)
 testthat::expect_equal(length(scat_list), 80)
 testthat::expect_equal(length(vsat_list), 80)
+```
+
+```{r}
+dims <- purrr::map(mri_list, dim)
+testthat::expect_setequal(dims[1], dims)
+testthat::expect_setequal(dims[1], purrr::map(mask_list, dim))
+testthat::expect_setequal(dims[1], purrr::map(scat_list, dim))
+testthat::expect_setequal(dims[1], purrr::map(vsat_list, dim))
+```
+
+```{r}
+n <- 53
+is_na <- purrr::compose(is.na, as.numeric)
+testthat::expect_setequal(is_na(mri_list[[n]]), FALSE)
+testthat::expect_setequal(is_na(mask_list[[n]]), FALSE)
+testthat::expect_setequal(is_na(scat_list[[n]]), FALSE)
+testthat::expect_setequal(is_na(vsat_list[[n]]), FALSE)
+```
+
+```{r}
+in_range <- function(img, rng = 0:255) all(unique(img) %in% rng)
+
+testthat::expect_setequal(
+  purrr::map(mri_list, in_range, rng = 0:255), TRUE
+)
+testthat::expect_setequal(
+  purrr::map(mask_list, in_range, rng = 0:1), TRUE
+)
+testthat::expect_setequal(
+  purrr::map(scat_list, in_range, rng = 0:1), TRUE
+)
+testthat::expect_setequal(
+  purrr::map(vsat_list, in_range, rng = 0:1), TRUE
+)
 ```
 
 
@@ -386,4 +423,101 @@ plot_array2d(vsat_train[53,,])
 ```
 
 
+## Resampling Tensors
+
+Use these functions 
+`ANTsRNet::resampleTensor`, `reticulate::array_reshape`.
+
+
+## AdvR: missing values
+
+```{r}
+NA > 5
+NA > NA
+10 * NA
+!NA
+```
+
+```{r}
+NA | TRUE
+NA & FALSE
+```
+
+```{r}
+0/0
+1/0
+-1/0
+1/Inf
+```
+
+```{r}
+# x == NA
+empty = c()
+is.finite(empty)
+empty[is.finite(empty)]
+empty[is.na(empty)] 
+maxi = max(empty[is.finite(empty)])
+is.finite(maxi)
+cat("---\n")
+x <- c(NA, 5, NA, 10)
+is.na(x)
+is.finite(x)
+x[is.finite(x)]
+x[!is.na(x)]
+max(x[!is.na(x)])
+y <- c(NaN, 5, NaN, 10)
+is.na(y)
+is.finite(y)
+y[is.finite(y)]
+y[!is.na(y)]
+max(y[!is.na(y)])
+z <- c(Inf, 5, -Inf, 10)
+is.na(z)
+is.finite(z)
+z[is.finite(z)]
+z[!is.na(z)]
+max(z[!is.na(z)])
+```
+
+```{r}
+?max
+max(c(1, -Inf))
+
+max(c())
+max(NA, na.rm = TRUE)
+max(NaN, na.rm = TRUE)
+
+maxi <- max(c())
+!is.finite(maxi) | maxi == 0
+maxi <- 0
+!is.finite(maxi) | maxi == 0
+```
+
+## Looking thru colorspace
+
+```{r}
+A = c(0.5, 1, 0, NA, NaN, Inf)
+B = c(0.5, 1, 0, 0.5, 0.5, 0.5)
+tb <- RGB(R = A, G = B, B = B)
+tb
+```
+
+```{r}
+col <- hex(tb)
+col
+is.na(col[1])
+is.na(col[4])
+```
+
+```{r}
+ord <- as.character(levels(factor(col)))
+ord
+ord[2]
+```
+
+```{r}
+f <- factor(col)
+f
+levels(f)
+```
 

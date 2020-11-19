@@ -18,8 +18,8 @@
 #' @export
 #' @examples
 #' urandom <- make_arrays(m = 5, n = 5)$urandom
-#' plot_array2d(urandom, title = "urandom", title_size = 32)
-plot_array2d <- function(arrList, title = NULL, title_size = 24) {
+#' plot_array2d(urandom, title = "urandom", title_size = 24)
+plot_array2d <- function(arrList, title = NULL, title_size = 18) {
   # all arrays should have the same dimensions
 
   if (all(class(arrList) == c("matrix", "array"))) {
@@ -37,20 +37,22 @@ plot_array2d <- function(arrList, title = NULL, title_size = 24) {
 
   # max in all arrays
   vecList <- purrr::map(arrList, as.numeric)
-  maxi <- max(purrr::map_dbl(vecList, max, na.rm = TRUE))
-  # avoid possible divide by zero below
-  if (is.nan(maxi) | is.na(maxi) | maxi == 0) maxi = 1
+  maxi <- max(purrr::map_dbl(vecList, max, na.rm = TRUE), na.rm = TRUE)
+  # avoid possible divide by -Inf or 0
+  if (!is.finite(maxi) | maxi == 0) maxi = 1
 
   # col <- grDevices::rgb(
   #   vecList[[1]], vecList[[2]], vecList[[3]],
   #   maxColorValue = maxi
   # )
   col <- colorspace::hex(colorspace::RGB(
-            vecList[[1]] / maxi, vecList[[2]] / maxi, vecList[[3]] / maxi
-         ))
-  col[col]
+             vecList[[1]] / maxi,
+             vecList[[2]] / maxi,
+             vecList[[3]] / maxi
+           )
+         )
+
   # dt <- tidyr::expand_grid(x = 1:d[1], y = 1:d[2]) %>%
-  # dt <- tidyr::expand_grid(x = 1:d[1], y = d[2]:1) %>%
   dt <- tibble::tibble(
     y = rev(rep(1:d[2], each = d[1])),
     x = rep(1:d[1], times = d[2])
@@ -65,7 +67,7 @@ plot_array2d <- function(arrList, title = NULL, title_size = 24) {
       y = NULL
     ) +
     ggplot2::scale_fill_manual(
-      values = as.character(levels(addNA(col, ifany = TRUE)))
+      values = as.character(levels(factor(col)))
     ) +
     # remove gray panel from the background
     ggplot2::coord_fixed(1, expand = FALSE) +
