@@ -9,6 +9,7 @@
 #' @importFrom ggplot2 coord_fixed element_blank element_text margin rel
 #' @importFrom rlang duplicate
 #' @importFrom grDevices rgb
+#' @importFrom colorspace RGB mixcolor
 #'
 #' @param arrList array or list of 1, 2, or 3 arrays
 #' @param title character
@@ -41,31 +42,26 @@ plot_array2d <- function(arrList, title = NULL, title_size = 18) {
   # avoid possible divide by -Inf or 0
   if (!is.finite(maxi) | maxi == 0) maxi = 1
 
-  # col <- grDevices::rgb(
-  #   vecList[[1]], vecList[[2]], vecList[[3]],
-  #   maxColorValue = maxi
-  # )
-
   col <- colorspace::hex(
             colorspace::RGB(
               vecList[[1]]/maxi, vecList[[2]]/maxi, vecList[[3]]/maxi))
 
-  # dt <- tidyr::expand_grid(x = 1:d[1], y = 1:d[2]) %>%
   dt <- tibble::tibble(
     y = rev(rep(1:d[2], each = d[1])),
     x = rep(1:d[1], times = d[2])
   ) %>%
     dplyr::mutate(z = col)
 
-  dt %>% ggplot2::ggplot(ggplot2::aes(x, y, fill = col)) +
-    ggplot2::geom_raster() +
+  dt %>% ggplot2::ggplot(ggplot2::aes(x, y)) +
+    ggplot2::geom_raster(ggplot2::aes(fill = z)) +
     ggplot2::labs(
       title = title,
       x = NULL,
       y = NULL
     ) +
     ggplot2::scale_fill_manual(
-      values = as.character(levels(factor(col)))
+      values = as.character(levels(factor(col))),
+      na.value = "#ffd015"
     ) +
     # remove gray panel from the background
     ggplot2::coord_fixed(1, expand = FALSE) +
@@ -84,15 +80,22 @@ plot_array2d <- function(arrList, title = NULL, title_size = 18) {
     )
 }
 
-#' @export
+#' Create ggplot from image and mask
+#'
 #' @rdname plot_array2d
+#'
 #' @param img antsImage
 #' @param mask antsImage
 #' @param alpha numeric
+#' @param title character
+#' @param title_size numeric
 #'
 #' @return ggplot object
 #' @export
-plotBlendedImages <- function(img, mask, alpha = 0.35) {
+plotBlendedImages <- function(
+    img, mask, alpha = 0.35,
+    title = NULL, title_size = 18
+) {
   d = dim(mask)
 
   ivec <- as.numeric(img)
@@ -116,7 +119,7 @@ plotBlendedImages <- function(img, mask, alpha = 0.35) {
 
   dt %>% ggplot2::ggplot(ggplot2::aes(x, y)) +
     ggplot2::geom_raster(aes(fill = blended_hex)) +
-    ggplot2::labs(title = NULL, x = NULL, y = NULL) +
+    ggplot2::labs(title = title, x = NULL, y = NULL) +
     ggplot2::scale_fill_manual(
       values = as.character(levels(factor(blended_hex)))
     ) +
@@ -126,7 +129,102 @@ plotBlendedImages <- function(img, mask, alpha = 0.35) {
       axis.text = ggplot2::element_blank(),
       plot.title = ggplot2::element_text(
         margin = ggplot2::margin(t = 8, b = 16), # ?margin
-        size = 18,
+        size = title_size,
+        lineheight = 1,
+        face = "bold",
+        colour = "#f04747",
+        hjust = 0.5
+      ),
+      legend.position = "none"
+    )
+}
+
+#' Create ggplot from array and mask
+#'
+#' @rdname plot2_array2d
+#'
+#' @param arrList array or list of 1, 2, or 3 arrays
+#' @param maskList array or list of 1, 2, or 3 arrays
+#' @param alpha numeric
+#' @param title character
+#' @param title_size numeric
+#'
+#' @return ggplot object
+#' @export
+#' @examples
+#' urandom <- make_arrays(m = 5, n = 5)$urandom
+#' square <- make_arrays(m = 5, n = 5)$rectangle
+#' plot2_array2d(urandom, square, title = "urandom*square", title_size = 18)
+plot2_array2d <- function(
+    arrList, maskList = NULL, alpha = 0.35,
+    title = NULL, title_size = 18
+) {
+  if (all(class(arrList) == c("matrix", "array"))) {
+    arrList <- list(arrList, arrList, arrList)
+  }
+  if (class(arrList) == "list" & length(arrList) == 2) {
+    arrList <- list(arrList[[1]], arrList[[1]] * 0, arrList[[2]])
+  }
+
+  d = dim(arrList[[1]])
+
+  if (!is.null(maskList)) {
+    if (all(class(maskList) == c("matrix", "array"))) {
+      maskList[maskList == 0] <- NA
+      maskList <- list(maskList, maskList * 0, maskList)
+    }
+    if (class(maskList) == "list" & length(maskList) == 2) {
+      maskList <- list(maskList[[1]], maskList[[1]] * 0, maskList[[2]])
+    }
+  } else {
+    ones <- array(1, dim = d)
+    maskList = list(ones, ones, ones)
+  }
+
+  # max in all arrays
+  ivecList <- purrr::map(arrList, as.numeric)
+  maxi <- max(purrr::map_dbl(ivecList, max, na.rm = TRUE), na.rm = TRUE)
+  # avoid possible divide by -Inf or 0
+  if (!is.finite(maxi) | maxi == 0) maxi = 1
+
+  mvecList <- purrr::map(maskList, as.numeric)
+
+  icol <- colorspace::RGB(
+    ivecList[[1]]/maxi, ivecList[[2]]/maxi, ivecList[[3]]/maxi
+  )
+  mcol <- colorspace::RGB(
+    mvecList[[1]], mvecList[[2]], mvecList[[3]]
+  )
+
+  blended_col = colorspace::mixcolor(alpha, icol, mcol)
+  blended_hex <- colorspace::hex(blended_col, fixup = FALSE)
+
+  # dt <- tidyr::expand_grid(x = 1:d[1], y = 1:d[2]) %>%
+  dt <- tibble::tibble(
+    y = rev(rep(1:d[2], each = d[1])),
+    x = rep(1:d[1], times = d[2])
+  ) %>%
+    dplyr::mutate(z = blended_hex)
+
+  dt %>% ggplot2::ggplot(ggplot2::aes(x, y)) +
+    ggplot2::geom_raster(ggplot2::aes(fill = z)) +
+    ggplot2::labs(
+      title = title,
+      x = NULL,
+      y = NULL
+    ) +
+    ggplot2::scale_fill_manual(
+      values = as.character(levels(factor(blended_hex))),
+      na.value = "#ffd015"
+    ) +
+    # remove gray panel from the background
+    ggplot2::coord_fixed(1, expand = FALSE) +
+    ggplot2::theme(
+      axis.ticks = ggplot2::element_blank(),
+      axis.text = ggplot2::element_blank(),
+      plot.title = ggplot2::element_text(
+        margin = ggplot2::margin(t = 8, b = 16), # ?margin
+        size = title_size,
         lineheight = 1,
         face = "bold",
         colour = "#f04747",

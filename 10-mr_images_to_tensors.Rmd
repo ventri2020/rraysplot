@@ -177,6 +177,10 @@ scat_list <- purrr::map2(scat_list, mask_list, `*`)
 vsat_list <- purrr::map2(vsat_list, mask_list, `*`)
 ```
 
+```{r}
+lobstr::obj_sizes(mri_list, mask_list, scat_list, vsat_list)
+```
+
 
 ## Test generated images
 
@@ -238,7 +242,7 @@ blended_hex <- colorspace::hex(blended_RGB)
 ```
 
 
-### Example of blending antsImages
+### An example of blending antsImages
 
 * `alpha == 0` -- transparent mask
 * `alpha == 1` -- opaque mask
@@ -263,9 +267,9 @@ vsat <- vsat * mask
 ```
 
 ```{r figures-blended1, fig.show="hold", fig.asp = 0.5, out.width="33.3%"}
-plotBlendedImages(mri, mask, alpha = 0.35)
-plotBlendedImages(mri, scat, alpha = 0.35)
-plotBlendedImages(mri, vsat, alpha = 0.35)
+plotBlendedImages(mri, mask, alpha = 0.35, title = i, title_size = 24)
+plotBlendedImages(mri, scat, alpha = 0.35, title = i, title_size = 24)
+plotBlendedImages(mri, vsat, alpha = 0.35, title = i, title_size = 24)
 ```
 
 
@@ -285,23 +289,23 @@ vsat_alist <- imageList2arrayList(vsat_list)
 ```
 
 ```{r}
+lobstr::obj_sizes(mri_alist, mask_alist, scat_alist, vsat_alist)
+```
+
+```{r}
 class(mri_alist[[53]])
 ```
 
 ```{r}
 arrayList2Tensor <- function(aList, dim_names = info_mri$patient) {
-  n_images <- length(aList)
-  dims = dim(aList[[1]])
-
   y_train <- array(
     data = NA,
-    dim = c(n_images, dims)
+    dim = c(length(aList), dim(aList[[1]]))
   )
 
   for (i in seq_along(aList)) {
     y_train[i,,] <- aList[[i]]
   }
-
   dimnames(y_train)[[1]] <- dim_names
 
   y_train
@@ -310,33 +314,50 @@ arrayList2Tensor <- function(aList, dim_names = info_mri$patient) {
 
 ```{r}
 mri_train <- arrayList2Tensor(mri_alist)
-str(mri_train)
-
 mask_train <- arrayList2Tensor(mask_alist)
-
-# mask_train[mask_train == 0] <- NA
-# mri_train <- mri_train * mask_train
-```
-
-```{r}
 scat_train <- arrayList2Tensor(scat_alist)
-# scat_train <- scat_train * mask_train
+vsat_train <- arrayList2Tensor(vsat_alist)
+
+str(mri_train)
 ```
 
+
 ```{r}
-vsat_train <- arrayList2Tensor(vsat_alist)
-# vsat_train <- vsat_train * mask_train
+lobstr::obj_sizes(mri_train, mask_train, scat_train, vsat_train)
 ```
 
 
 ### Check if dimnames are parallel to image indexes
 
-```{r figures2-side2, fig.show="hold", fig.asp=0.5, out.width="48%"}
-plot_array2d(mri_train[5,,], title = dimnames(mri_train)[[1]][[5]])
-plot_array2d(mri_train[29,,], title = dimnames(mri_train)[[1]][[29]])
+```{r figures2-side10, fig.show="hold", fig.asp=0.5, out.width="50%"}
+plot2_array2d(
+  mri_train[29,,], mask_train[29,,],
+  alpha = 0.4,
+  title = dimnames(mri_train)[[1]][[29]],
+  title_size = 24
+)
+plot2_array2d(
+  mri_train[29,,],
+  alpha = 0.1,
+  title = dimnames(mri_train)[[1]][[29]],
+  title_size = 24
+)
 ```
 
-```{r figures2-side3, fig.show="hold", fig.asp=0.5, out.width="48%"}
+```{r figures2-side2, fig.show="hold", fig.asp=0.5, out.width="50%"}
+plot2_array2d(
+  mri_train[29,,], scat_train[29,,],
+  title = dimnames(mri_train)[[1]][[29]],
+  title_size = 24
+)
+plot2_array2d(
+  mri_train[29,,], vsat_train[29,,],
+  title = dimnames(mri_train)[[1]][[29]],
+  title_size = 24
+)
+```
+
+```{r figures2-side3, fig.show="hold", fig.asp=0.5, out.width="50%"}
 plot_array2d(scat_train[46,,], title = dimnames(scat_train)[[1]][[46]])
 plot_array2d(scat_train["700120",,], title = dimnames(scat_train)[[1]][[46]])
 ```
@@ -347,7 +368,7 @@ plot_array2d(vsat_train[53,,], title = dimnames(vsat_train)[[1]][[53]])
 ```
 
 ```{r}
-dim(vsat_train[53,,])
+table(scat_train[53,,])
 table(vsat_train[53,,])
 ```
 
@@ -356,7 +377,7 @@ Removed 211608 rows containing missing values (geom_raster).
 
 ```{r}
 # plot_array2d(vsat_train[53,,])
-plot_array2d(vsat_train[53,,] * mask_train[53,,])
+plot_array2d(vsat_train[53,,])
 ```
 
 ```{r}

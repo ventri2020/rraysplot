@@ -7,7 +7,7 @@
 \usage{
 plot_array2d(arrList, title = NULL, title_size = 18)
 
-plotBlendedImages(img, mask, alpha = 0.35)
+plotBlendedImages(img, mask, alpha = 0.35, title = NULL, title_size = 18)
 }
 \arguments{
 \item{arrList}{array or list of 1, 2, or 3 arrays}
