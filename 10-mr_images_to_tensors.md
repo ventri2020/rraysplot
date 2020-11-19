@@ -206,11 +206,11 @@ testthat::expect_setequal(
 
 ## [Alpha blending](https://en.wikipedia.org/wiki/Alpha_compositing#Alpha_blending_)
 
-If the destination background is opaque, image<sub>*A*</sub> = 1:
+If the destination background is opaque, ${\\rm image}\_\\alpha = 1$:
 $$
-\\text{blended image}\_{\\rm RGB} = 
-   (1 - \\alpha)\\cdot \\text{image}\_{\\rm RGB} + 
-      \\alpha\\cdot\\text{mask}\_{\\rm RGB}
+{\\rm blended\\ image}\_{\\rm RGB} = 
+   (1 - \\alpha)\\cdot {\\rm image}\_{\\rm RGB} + 
+      \\alpha\\cdot {\\rm mask}\_{\\rm RGB}
 $$
 
 ``` r
