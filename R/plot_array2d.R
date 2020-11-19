@@ -45,12 +45,10 @@ plot_array2d <- function(arrList, title = NULL, title_size = 18) {
   #   vecList[[1]], vecList[[2]], vecList[[3]],
   #   maxColorValue = maxi
   # )
-  col <- colorspace::hex(colorspace::RGB(
-             vecList[[1]] / maxi,
-             vecList[[2]] / maxi,
-             vecList[[3]] / maxi
-           )
-         )
+
+  col <- colorspace::hex(
+            colorspace::RGB(
+              vecList[[1]]/maxi, vecList[[2]]/maxi, vecList[[3]]/maxi))
 
   # dt <- tidyr::expand_grid(x = 1:d[1], y = 1:d[2]) %>%
   dt <- tibble::tibble(
@@ -88,9 +86,52 @@ plot_array2d <- function(arrList, title = NULL, title_size = 18) {
 
 #' @export
 #' @rdname plot_array2d
-#' @param x character path of image or an object of class antsImage
-#' @param title character
-#' @param title_size numeric
-plot_antsImage <- function(x, title, title_size) {
-  ANTsRCore::check_ants(x)
+#' @param img antsImage
+#' @param mask antsImage
+#' @param alpha numeric
+#'
+#' @return ggplot object
+#' @export
+plotBlendedImages <- function(img, mask, alpha = 0.35) {
+  d = dim(mask)
+
+  ivec <- as.numeric(img)
+  mvec <- as.numeric(mask)
+
+  maxi <- max(ivec, na.rm = TRUE)
+  # avoid possible divide by -Inf or 0
+  if (!is.finite(maxi) | maxi == 0) maxi = 1
+
+  icol <- colorspace::RGB(ivec/maxi, ivec/maxi, ivec/maxi)
+  mcol <- colorspace::RGB(mvec, 0, mvec)
+  blended_col = colorspace::mixcolor(alpha, icol, mcol)
+
+  blended_hex <- colorspace::hex(blended_col, fixup = FALSE)
+
+  dt <- tibble::tibble(
+    y = rev(rep(1:d[2], each = d[1])),
+    x = rep(1:d[1], times = d[2])
+  ) %>%
+    dplyr::mutate(z = blended_hex)
+
+  dt %>% ggplot2::ggplot(ggplot2::aes(x, y)) +
+    ggplot2::geom_raster(aes(fill = blended_hex)) +
+    ggplot2::labs(title = NULL, x = NULL, y = NULL) +
+    ggplot2::scale_fill_manual(
+      values = as.character(levels(factor(blended_hex)))
+    ) +
+    ggplot2::coord_fixed(1, expand = FALSE) +
+    ggplot2::theme(
+      axis.ticks = ggplot2::element_blank(),
+      axis.text = ggplot2::element_blank(),
+      plot.title = ggplot2::element_text(
+        margin = ggplot2::margin(t = 8, b = 16), # ?margin
+        size = 18,
+        lineheight = 1,
+        face = "bold",
+        colour = "#f04747",
+        hjust = 0.5
+      ),
+      legend.position = "none"
+    )
 }

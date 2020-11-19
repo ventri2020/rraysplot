@@ -1,6 +1,6 @@
 ---
 title: "Convert Images to Tensors"
-date: "17.11.2020"
+date: "19.11.2020"
 output: github_document
 ---
 
@@ -200,36 +200,32 @@ $$
    (1 - \alpha)\cdot \text{image}_{\rm RGB} + 
       \alpha\cdot\text{mask}_{\rm RGB}
 $$
+```r
+image_RGB <- colorspace::RGB(R = ich1, G = ich2, B = ich3)
+mask_RGB <- colorspace::RGB(R = mch1, G = mch2, B = mch3)
 
-### Blending antsImages
+blended_RGB <- colorspace::mixcolor(alpha, image_RGB, mask_RGB)
+blended_hex <- colorspace::hex(blended_RGB)
+```
+
+
+### Example of blending antsImages 
+
+* `alpha == 0` -- transparent mask
+* `alpha == 1` -- opaque mask
 
 ```{r}
-i = 2
+i = 53
 alpha = 0.25
-# alpha == 0  # transparent mask
-# alpha == 1  # opaque mask
 
-mri <- mri_list[[i]]
-mask <- mask_list[[i]]
-
-mask[mask == 0] <- NA
-
-class(mri)
-range(mri)
-unique(mask)
+mri <- antsImageClone(mri_list[[i]])
+mask <- antsImageClone(mask_list[[i]])
+scat <- antsImageClone(scat_list[[i]])
+vsat <- antsImageClone(vsat_list[[i]])
 
 mri <- mri * mask
-mrv <- as.numeric(mri/255)
-mv <- as.numeric(mask)
-
-class(mrv)
-
-image_RGB <- colorspace::RGB(R = mrv, G = mrv, B = mrv)
-mask_RGB <- colorspace::RGB(R = mv, G = mv, B = 0)
-
-# (1 - alpha) * image_RGB + alpha * mask_RGB
-out_RGB <- colorspace::mixcolor(alpha, image_RGB, mask_RGB)
-out_hex <- colorspace::hex(out_RGB)
+scat <- scat * mask
+vsat <- vsat * mask
 ```
 
 ```{r eval=FALSE, include=FALSE}
@@ -237,56 +233,14 @@ out_hex <- colorspace::hex(out_RGB)
 # https://www.schemecolor.com/neon-rainbow.php
 ```
 
-```{r}
-d <- dim(mask)
-
-dt <- tibble::tibble(
-  y = rev(rep(1:d[2], each = d[1])),
-  x = rep(1:d[1], times = d[2])
-) %>%
-  dplyr::mutate(z = out_hex)
-
-dt %>% ggplot2::ggplot(ggplot2::aes(x, y)) +
-    ggplot2::geom_raster(aes(fill = out_hex)) +
-    ggplot2::labs(
-      title = "colorspace",
-      x = NULL,
-      y = NULL
-    ) +
-    ggplot2::scale_fill_manual(
-      values = as.character(levels(factor(out_hex))),
-      na.value="#8B00FB"
-    ) +
-    # remove gray panel from the background
-    ggplot2::coord_fixed(1, expand = FALSE) +
-    ggplot2::theme(
-      axis.ticks = ggplot2::element_blank(),
-      axis.text = ggplot2::element_blank(),
-      plot.title = ggplot2::element_text(
-        margin = ggplot2::margin(t = 8, b = 16), # see ?margin
-        size = 18,
-        lineheight = 1,
-        face = "bold",
-        colour = "#3700FB",
-        hjust = 0.5
-      ),
-      legend.position = "none"
-    )
+```{r, figures-blended1, fig.show="hold", fig.asp = 0.5, out.width="33%"}
+plotBlendedImages(mri, mask)
+plotBlendedImages(mri, scat)
+plotBlendedImages(mri, vsat)
 ```
 
 
 # Images Lists to Tensors
-
-```{r}
-i = 53
-
-mask <- mask_list[[i]]
-mask[mask == 0] <- NA
-
-mri <- mri_list[[i]] * mask
-scat <- scat_list[[i]] * mask
-vsat <- vsat_list[[i]] * mask
-```
 
 ```{r}
 imageList2arrayList <- function(iList) {
@@ -360,7 +314,7 @@ plot_array2d(scat_train[46,,], title = dimnames(scat_train)[[1]][[46]])
 plot_array2d(scat_train["700120",,], title = dimnames(scat_train)[[1]][[46]])
 ```
 
-```{r figures2-side3, fig.show="hold", fig.asp=0.5, out.width="48%"}
+```{r figures2-side4, fig.show="hold", fig.asp=0.5, out.width="48%"}
 plot_array2d(vsat_train[51,,], title = dimnames(vsat_train)[[1]][[51]])
 plot_array2d(vsat_train[53,,], title = dimnames(vsat_train)[[1]][[53]])
 ```
@@ -396,7 +350,6 @@ range(mask53)
 ```{r}
 plot_array2d(mri_train[53,,])
 ```
-
 
 
 ```{r}
@@ -498,12 +451,12 @@ maxi <- 0
 ```{r}
 A = c(0.5, 1, 0, NA, NaN, Inf)
 B = c(0.5, 1, 0, 0.5, 0.5, 0.5)
-tb <- RGB(R = A, G = B, B = B)
+tb <- colorspace::RGB(R = A, G = B, B = B)
 tb
 ```
 
 ```{r}
-col <- hex(tb)
+col <- colorspace::hex(tb)
 col
 is.na(col[1])
 is.na(col[4])

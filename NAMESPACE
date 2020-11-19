@@ -3,7 +3,7 @@
 export(bhistogram)
 export(images_info)
 export(make_arrays)
-export(plot_antsImage)
+export(plotBlendedImages)
 export(plot_array2d)
 importFrom(dplyr,mutate)
 importFrom(ggplot2,aes)

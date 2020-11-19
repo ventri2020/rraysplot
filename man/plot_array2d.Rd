@@ -2,12 +2,12 @@
 % Please edit documentation in R/plot_array2d.R
 \name{plot_array2d}
 \alias{plot_array2d}
-\alias{plot_antsImage}
+\alias{plotBlendedImages}
 \title{Return a ggplot of array}
 \usage{
-plot_array2d(arrList, title = NULL, title_size = 24)
+plot_array2d(arrList, title = NULL, title_size = 18)
 
-plot_antsImage(x, title, title_size)
+plotBlendedImages(img, mask, alpha = 0.35)
 }
 \arguments{
 \item{arrList}{array or list of 1, 2, or 3 arrays}
@@ -16,9 +16,15 @@ plot_antsImage(x, title, title_size)
 
 \item{title_size}{numeric}
 
-\item{x}{character path of image or an object of class antsImage}
+\item{img}{antsImage}
+
+\item{mask}{antsImage}
+
+\item{alpha}{numeric}
 }
 \value{
+ggplot object
+
 ggplot object
 }
 \description{
@@ -26,5 +32,5 @@ Create ggplot from array
 }
 \examples{
 urandom <- make_arrays(m = 5, n = 5)$urandom
-plot_array2d(urandom, title = "urandom", title_size = 32)
+plot_array2d(urandom, title = "urandom", title_size = 24)
 }
