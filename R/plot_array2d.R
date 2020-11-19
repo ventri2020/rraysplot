@@ -37,15 +37,18 @@ plot_array2d <- function(arrList, title = NULL, title_size = 24) {
 
   # max in all arrays
   vecList <- purrr::map(arrList, as.numeric)
-  maxi <- max(purrr::map_dbl(vecList, max))
+  maxi <- max(purrr::map_dbl(vecList, max, na.rm = TRUE))
   # avoid possible divide by zero below
-  if (maxi == 0) maxi = 1
+  if (is.nan(maxi) | is.na(maxi) | maxi == 0) maxi = 1
 
-  col <- grDevices::rgb(
-    vecList[[1]], vecList[[2]], vecList[[3]],
-    maxColorValue = maxi
-  )
-
+  # col <- grDevices::rgb(
+  #   vecList[[1]], vecList[[2]], vecList[[3]],
+  #   maxColorValue = maxi
+  # )
+  col <- colorspace::hex(colorspace::RGB(
+            vecList[[1]] / maxi, vecList[[2]] / maxi, vecList[[3]] / maxi
+         ))
+  col[col]
   # dt <- tidyr::expand_grid(x = 1:d[1], y = 1:d[2]) %>%
   # dt <- tidyr::expand_grid(x = 1:d[1], y = d[2]:1) %>%
   dt <- tibble::tibble(
@@ -62,7 +65,7 @@ plot_array2d <- function(arrList, title = NULL, title_size = 24) {
       y = NULL
     ) +
     ggplot2::scale_fill_manual(
-      values = as.character(levels(factor(col)))
+      values = as.character(levels(addNA(col, ifany = TRUE)))
     ) +
     # remove gray panel from the background
     ggplot2::coord_fixed(1, expand = FALSE) +

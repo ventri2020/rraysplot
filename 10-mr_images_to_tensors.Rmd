@@ -139,11 +139,12 @@ info_vsat
 ```{r}
 mri_list  <- imageFileNames2ImageList(info_mri[["file_path"]]) %>%
   imageList2sliceList(channel = 1)
+mask_list <- imageList2MaskList(mri_list, clean_up = 2)
+
 scat_list <- imageFileNames2ImageList(info_scat[["file_path"]]) %>%
   imageList2sliceList(channel = 1)
 vsat_list <- imageFileNames2ImageList(info_vsat[["file_path"]]) %>%
   imageList2sliceList(channel = 3)
-mask_list <- imageList2MaskList(mri_list, clean_up = 2)
 ```
 
 ```{r}
@@ -167,7 +168,7 @@ $$
 
 ```{r}
 i = 2
-alpha = 0.15
+alpha = 0.25
 # alpha == 0  # transparent mask
 # alpha == 1  # opaque mask
 
@@ -194,6 +195,11 @@ out_RGB <- colorspace::mixcolor(alpha, image_RGB, mask_RGB)
 out_hex <- colorspace::hex(out_RGB)
 ```
 
+```{r eval=FALSE, include=FALSE}
+# Neon Rainbow
+# https://www.schemecolor.com/neon-rainbow.php
+```
+
 ```{r}
 d <- dim(mask)
 
@@ -212,7 +218,7 @@ dt %>% ggplot2::ggplot(ggplot2::aes(x, y)) +
     ) +
     ggplot2::scale_fill_manual(
       values = as.character(levels(factor(out_hex))),
-      na.value="green"
+      na.value="#8B00FB"
     ) +
     # remove gray panel from the background
     ggplot2::coord_fixed(1, expand = FALSE) +
@@ -224,7 +230,7 @@ dt %>% ggplot2::ggplot(ggplot2::aes(x, y)) +
         size = 18,
         lineheight = 1,
         face = "bold",
-        colour = "#f04747",
+        colour = "#3700FB",
         hjust = 0.5
       ),
       legend.position = "none"
@@ -238,100 +244,146 @@ dt %>% ggplot2::ggplot(ggplot2::aes(x, y)) +
 i = 53
 
 mask <- mask_list[[i]]
+mask[mask == 0] <- NA
+
 mri <- mri_list[[i]] * mask
 scat <- scat_list[[i]] * mask
 vsat <- vsat_list[[i]] * mask
-
-
-
 ```
 
 ```{r}
-images_to_tensor_mask <- function(
-    iList, ll = c(34, 56), width_x_height = c(768, 384), channel = 1
-) {
-  get_channel <- function(img, channel = 3) {
-    ANTsRCore::splitChannels(img)[[channel]]
-  }
-  get_mask <- purrr::compose(ANTsRCore::getMask, get_channel)
-  
-  mList <- purrr::map(iList, get_mask, channel = 1)
-  mList
+imageList2arrayList <- function(iList) {
+  purrr::map(iList, as.array)
 }
 ```
 
 ```{r}
-images_to_tensor <- function(iList, lower_left = c(34, 56), width_x_height = c(768, 384), channel = 1) {
-  n_images <- length(iList)
-    
-  domainImage = ANTsRCore::makeImage(imagesize = width_x_height, voxval = 0)
-  dims = dim(domainImage)
+mask_alist <- imageList2arrayList(mask_list)
+mri_alist <- imageList2arrayList(mri_list)
+scat_alist <- imageList2arrayList(scat_list)
+vsat_alist <- imageList2arrayList(vsat_list)
+```
+
+```{r}
+class(mri_alist[[53]])
+```
+
+
+```{r}
+arrayList2Tensor <- function(aList, dim_names = info_mri$patient) {
+  n_images <- length(aList)
+  dims = dim(aList[[1]])
 
   y_train <- array(
     data = NA,
-    dim = c(components(iList[[1]]), dims, n_images)
+    dim = c(n_images, dims)
   )
-
-  array_crop <- purrr::compose(as.array, crop_image_wxhx1)
-  aList <- map(iList, array_crop, ll = lower_left, wh = width_x_height)
 
   for (i in seq_along(aList)) {
-    y_train[,,,i] <- aList[[i]]
+    y_train[i,,] <- aList[[i]]
   }
 
-  K <- keras::backend()  
+  dimnames(y_train)[[1]] <- dim_names
 
-  y_train <- as.array(
-    K$permute_dimensions(y_train, pattern = c(3L, 1L, 2L, 0L))
-  )
-
-  dimnames(y_train)[[1]] <- info$patient
-
-  y_train[,,,channel]
+  y_train
 }
 ```
 
 
 ```{r}
-train <- images_to_tensor(mri_list)
-str(train)
+mri_train <- arrayList2Tensor(mri_alist)
+str(mri_train)
+
+mask_train <- arrayList2Tensor(mask_alist)
+
+# mask_train[mask_train == 0] <- NA
+# mri_train <- mri_train * mask_train
 ```
 
 ```{r}
-mask <- images_to_tensor_mask(info_mri)
-str(mask)
+scat_train <- arrayList2Tensor(scat_alist)
+# scat_train <- scat_train * mask_train
+```
+
+```{r}
+vsat_train <- arrayList2Tensor(vsat_alist)
+# vsat_train <- vsat_train * mask_train
 ```
 
 
-## Check if dimnames are parallel to image indexes
+### Check if dimnames are parallel to image indexes
 
 ```{r figures2-side2, fig.show="hold", fig.asp=0.5, out.width="48%"}
-plot_array2d(train[5,,], title = dimnames(train)[[1]][[5]])
-plot_array2d(train[29,,], title = dimnames(train)[[1]][[29]])
+plot_array2d(mri_train[5,,], title = dimnames(mri_train)[[1]][[5]])
+plot_array2d(mri_train[29,,], title = dimnames(mri_train)[[1]][[29]])
 ```
 
 ```{r figures2-side3, fig.show="hold", fig.asp=0.5, out.width="48%"}
-plot_array2d(train[46,,], title = dimnames(train)[[1]][[46]])
-plot_array2d(train["700120",,], title = dimnames(train)[[1]][[46]])
+plot_array2d(scat_train[46,,], title = dimnames(scat_train)[[1]][[46]])
+plot_array2d(scat_train["700120",,], title = dimnames(scat_train)[[1]][[46]])
 ```
 
-
-## TODO
+```{r figures2-side3, fig.show="hold", fig.asp=0.5, out.width="48%"}
+plot_array2d(vsat_train[51,,], title = dimnames(vsat_train)[[1]][[51]])
+plot_array2d(vsat_train[53,,], title = dimnames(vsat_train)[[1]][[53]])
+```
 
 ```{r}
-p <- info$file_path[[1]]
-img <- ANTsRCore::antsImageRead(p)
-channels <- ANTsRCore::splitChannels(img)
-slice <- ANTsRCore::extractSlice(channels[[1]], 1, 3)
-cslice <- crop_image_wxh(slice)
-aslice = as.array(cslice)
-
-dim(cslice)
-dim(aslice)
+dim(vsat_train[53,,])
+table(vsat_train[53,,])
 ```
 
-```{r, figures2-side1, fig.show="hold", fig.asp=0.5, out.width="48%"}
-plot_array2d(aslice)
-invisible(plot(cslice, doCropping=F))
+Possible BUG: 	
+Removed 211608 rows containing missing values (geom_raster).
+
+```{r}
+# plot_array2d(vsat_train[53,,])
+plot_array2d(vsat_train[53,,] * mask_train[53,,])
 ```
+
+```{r}
+table(as.numeric(mask_train[53,,]), exclude = NULL)
+```
+
+```{r}
+prod(dim(mask_train[53,,]))
+83304+211608
+```
+
+```{r}
+mask53 <- getMask(mri_list[[53]])
+invisible(plot(mri_list[[53]], mask53, alpha = 0.4, doCropping = FALSE))
+range(mask53)
+```
+
+```{r}
+plot_array2d(mri_train[53,,])
+```
+
+
+
+```{r}
+dims <- dim(vsat_train[53,,])
+
+vec <- as.numeric(vsat_train[53,,])
+length(vec[is.nan(vec)])
+vec[is.nan(vec)] <- 0
+range(vec)
+
+vsat_train[53,,] <- array(vec, dim = dims) 
+maxi = max(vsat_train[53,,], na.rm = TRUE)
+maxi
+
+plot_array2d(vsat_train[53,,])
+# plot_array2d(vsat_train[54,,])
+# plot_array2d(vsat_train[59,,])
+
+# vsat[53,,][is.nan(vsat[53,,])] <- NA
+# vsat[53,,] <- vsat[53,,] / maxi
+# is.nan(maxi)
+# is.na(maxi)
+# maxi == 0
+```
+
+
 
