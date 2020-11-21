@@ -28,3 +28,5 @@ Imports:
     glue,
     stringr,
     colorspace
+Depends: 
+    R (>= 2.10)

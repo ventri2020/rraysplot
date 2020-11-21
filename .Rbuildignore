@@ -12,10 +12,11 @@
 ^dicom_info\.R$
 ^dicom_plot\.R$
 
-00-check_mr_images.Rmd
+^00-check_mr_images\.Rmd
 ^00-check_mr_images\.md$
 ^10-mr_images_to_tensors\.Rmd$
 ^10-mr_images_to_tensors\.md$
+^20-tensor_resampling\.Rmd$
 
 ^bin$
 ^tmp$

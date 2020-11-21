@@ -326,6 +326,11 @@ table(vsat_tensor[29,,])
 ```
 
 
+## Generate images of all data
+
+TODO.
+
+
 ## Save tensors in `data-raw` directory
 
 ```{r}
@@ -360,15 +365,6 @@ fat80_768x384 = list(
 ```
 
 ```{r}
-usethis::use_data_raw(name = "fat80_768x384")
-usethis::use_data(fat80_768x384, overwrite = TRUE)
-```
-
-```{r eval=FALSE, include=FALSE}
-mnist <- keras::dataset_mnist()
-
-train_images <- mnist$train$x
-train_labels <- mnist$train$y
-test_images <- mnist$test$x
-test_labels <- mnist$test$y
+# usethis::use_data_raw(name = "fat80_768x384")
+# usethis::use_data(fat80_768x384, overwrite = TRUE)
 ```
