@@ -42,15 +42,18 @@ plot_array2d <- function(arrList, title = NULL, title_size = 18) {
   # avoid possible divide by -Inf or 0
   if (!is.finite(maxi) | maxi == 0) maxi = 1
 
-  col <- colorspace::hex(
-            colorspace::RGB(
-              vecList[[1]]/maxi, vecList[[2]]/maxi, vecList[[3]]/maxi))
+  col <- colorspace::RGB(
+    vecList[[1]]/maxi,
+    vecList[[2]]/maxi,
+    vecList[[3]]/maxi
+  )
+  col_hex <- colorspace::hex(col)
 
   dt <- tibble::tibble(
     y = rev(rep(1:d[2], each = d[1])),
     x = rep(1:d[1], times = d[2])
   ) %>%
-    dplyr::mutate(z = col)
+    dplyr::mutate(z = col_hex)
 
   dt %>% ggplot2::ggplot(ggplot2::aes(x, y)) +
     ggplot2::geom_raster(ggplot2::aes(fill = z)) +
@@ -60,10 +63,10 @@ plot_array2d <- function(arrList, title = NULL, title_size = 18) {
       y = NULL
     ) +
     ggplot2::scale_fill_manual(
-      values = as.character(levels(factor(col))),
+      values = as.character(levels(factor(col_hex))),
       na.value = "#ffd015"
     ) +
-    # remove gray panel from the background
+    # hide the gray panel from the background
     ggplot2::coord_fixed(1, expand = FALSE) +
     ggplot2::theme(
       axis.ticks = ggplot2::element_blank(),
@@ -108,7 +111,6 @@ plotBlendedImages <- function(
   icol <- colorspace::RGB(ivec/maxi, ivec/maxi, ivec/maxi)
   mcol <- colorspace::RGB(mvec, 0, mvec)
   blended_col = colorspace::mixcolor(alpha, icol, mcol)
-
   blended_hex <- colorspace::hex(blended_col, fixup = FALSE)
 
   dt <- tibble::tibble(
@@ -170,7 +172,7 @@ plot2_array2d <- function(
 
   if (!is.null(maskList)) {
     if (all(class(maskList) == c("matrix", "array"))) {
-      maskList[maskList == 0] <- NA
+      # maskList[maskList == 0] <- NA
       maskList <- list(maskList, maskList * 0, maskList)
     }
     if (class(maskList) == "list" & length(maskList) == 2) {
@@ -195,11 +197,9 @@ plot2_array2d <- function(
   mcol <- colorspace::RGB(
     mvecList[[1]], mvecList[[2]], mvecList[[3]]
   )
-
   blended_col = colorspace::mixcolor(alpha, icol, mcol)
   blended_hex <- colorspace::hex(blended_col, fixup = FALSE)
 
-  # dt <- tidyr::expand_grid(x = 1:d[1], y = 1:d[2]) %>%
   dt <- tibble::tibble(
     y = rev(rep(1:d[2], each = d[1])),
     x = rep(1:d[1], times = d[2])

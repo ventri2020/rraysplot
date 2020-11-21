@@ -179,19 +179,19 @@ The background noise present (left) and removed (right).
 
 
 ```r
-invisible(plot(mri_list[[1]]))
+invisible(plot(mri_list[[1]], doCropping = FALSE))
 bhistogram(as.array(mri_list[[1]]))
 
 mri_list2 <- purrr::map2(mri_list, mask_list, `*`)
 
-invisible(plot(mri_list2[[1]]))
+invisible(plot(mri_list2[[1]], doCropping = FALSE))
 bhistogram(as.array(mri_list2[[1]]))
 ```
 
 <img src="man/figures/10_images_to_tensors-figures-bgnoise-1.png" width="25%" /><img src="man/figures/10_images_to_tensors-figures-bgnoise-2.png" width="25%" /><img src="man/figures/10_images_to_tensors-figures-bgnoise-3.png" width="25%" /><img src="man/figures/10_images_to_tensors-figures-bgnoise-4.png" width="25%" />
 
 
-## Important! Removing the background artifacts from images
+## Removing the background artifacts from images
 
 
 ```r
@@ -203,10 +203,10 @@ vsat_list <- purrr::map2(vsat_list, mask_list, `*`)
 
 ```r
 lobstr::obj_sizes(mri_list, mask_list, scat_list, vsat_list)
-#> * -1,878,718,960 B
-#> *         96,785 B
-#> * -1,878,719,560 B
-#> *         96,785 B
+#> * -1,425,479,664 B
+#> *         96,768 B
+#> * -1,425,480,264 B
+#> *         96,768 B
 ```
 
 
@@ -319,10 +319,10 @@ vsat_alist <- imageList2arrayList(vsat_list)
 
 ```r
 lobstr::obj_sizes(mri_alist, mask_alist, scat_alist, vsat_alist)
-#> * -1,629,412,568 B
-#> *    188,789,905 B
-#> * -1,689,990,096 B
-#> *    188,789,905 B
+#> * -1,169,006,296 B
+#> *    188,789,888 B
+#> * -1,212,061,136 B
+#> *    188,789,888 B
 ```
 
 
@@ -342,10 +342,10 @@ str(mri_tensor)
 #>   ..$ : NULL
 #>   ..$ : NULL
 lobstr::obj_sizes(mri_tensor, mask_tensor, scat_tensor, vsat_tensor)
-#> * -288,371,848 B
-#> *  188,776,720 B
-#> * -288,377,192 B
-#> *  188,776,720 B
+#> * 188,749,440 B
+#> * 188,743,985 B
+#> * 188,743,983 B
+#> * 188,743,983 B
 ```
 
 

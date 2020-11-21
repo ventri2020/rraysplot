@@ -1,9 +1,8 @@
 ---
-title: "Convert Images to Tensors"
-date: "19.11.2020"
+title: Convert Images to Tensors
+date: 19.11.2020
 output:
   html_document:
-    keep_md: TRUE
     keep_html: TRUE
     df_print: paged
   pdf_document: default
@@ -31,7 +30,7 @@ packageVersion("rraysplot")
 ```
 
 
-## Image data for U-Net
+## Tensor data for U-Net
 
 Source [2.2.11 Data representations for neural networks](https://livebook.manning.com/book/deep-learning-with-r/chapter-2/48)
 in [Deep Learning with R](https://www.manning.com/books/deep-learning-with-r)
@@ -61,7 +60,7 @@ and a batch of 80 mask --
 ```
 
 
-## Important Note
+## Note
 
 We will crop all images to the 768x384 size and 
 prepare tensors for U-Net NN in dimensions:
@@ -130,7 +129,7 @@ arrayList2Tensor <- function(aList, dim_names = info_mri$patient) {
 ```
 
 
-## Read Images Info
+## Read MR Images Data into Tibble
 
 ```{r}
 info <- images_info("../80_images", extension = "dcm")
@@ -152,7 +151,7 @@ info_vsat
 ```
 
 
-## Create Images and Mask Lists
+## Create MRI, Mask, SCAT, and VSAT Lists
 
 ```{r}
 mri_list  <- imageFileNames2ImageList(info_mri[["file_path"]]) %>%
@@ -168,22 +167,26 @@ vsat_list <- imageFileNames2ImageList(info_vsat[["file_path"]]) %>%
   imageList2MaskList(clean_up = 0)
 ```
 
-We are going to remove the background noise from image.
+We are going to remove the background noise from image. Why?
+see the figure below.
 
-The background noise present (left) and removed (right).
+The background noise present in image (left) and 
+removed from image (right).
 
 ```{r figures-bgnoise, fig.show="hold", fig.asp=1, out.width="25%"}
 invisible(plot(mri_list[[1]], doCropping = FALSE))
 bhistogram(as.array(mri_list[[1]]))
 
-mri_list2 <- purrr::map2(mri_list, mask_list, `*`)
+img1r <- mri_list[[1]] * mask_list[[1]]
 
-invisible(plot(mri_list2[[1]], doCropping = FALSE))
-bhistogram(as.array(mri_list2[[1]]))
+invisible(plot(img1r, doCropping = FALSE))
+bhistogram(as.array(img1r))
 ```
 
 
-## Removing the background artifacts from images
+## Background noise and artifacts removal
+
+Removing the background noise and artifacts from MR images.
 
 ```{r}
 mri_list <- purrr::map2(mri_list, mask_list, `*`)
@@ -196,7 +199,7 @@ lobstr::obj_sizes(mri_list, mask_list, scat_list, vsat_list)
 ```
 
 
-## Checking generated images
+## Basic checks on generated images
 
 ```{r}
 testthat::expect_equal(length(mri_list), 80)
@@ -240,26 +243,16 @@ testthat::expect_setequal(
 ```
 
 
-## [Alpha blending](https://en.wikipedia.org/wiki/Alpha_compositing#Alpha_blending_)
-
-If the mask is opaque, $\alpha = 1$
+## [Alpha blending](https://en.wikipedia.org/wiki/Alpha_compositing#Alpha_blending_) masks with images
 
 $$
-{\rm blended\ image}_{\rm RGB} = (1 - \alpha)\cdot {\rm image}_{\rm RGB} + \alpha\cdot {\rm mask}_{\rm RGB}
+{\rm blended\ image}_{\rm RGB} = (1 - \alpha)\cdot {\rm image}_{\rm RGB} + \alpha\cdot {\rm background\ mask}_{\rm RGB}
 $$
-```r
-image_RGB <- colorspace::RGB(R = ich1, G = ich2, B = ich3)
-mask_RGB <- colorspace::RGB(R = mch1, G = mch2, B = mch3)
 
-blended_RGB <- colorspace::mixcolor(alpha, image_RGB, mask_RGB)
-blended_hex <- colorspace::hex(blended_RGB)
-```
+* Set `alpha == 0` -- for transparent background mask.
+* Set `alpha == 1` -- for fully opaque mask.
 
-
-### An example of blending antsImages
-
-* `alpha == 0` -- transparent mask
-* `alpha == 1` -- opaque mask
+An example of blending antsImages.
 
 ```{r}
 i = 53
@@ -269,10 +262,6 @@ mri <- antsImageClone(mri_list[[i]])
 mask <- antsImageClone(mask_list[[i]])
 scat <- antsImageClone(scat_list[[i]])
 vsat <- antsImageClone(vsat_list[[i]])
-
-mri <- mri * mask
-scat <- scat * mask
-vsat <- vsat * mask
 ```
 
 ```{r eval=FALSE, include=FALSE}
@@ -296,7 +285,7 @@ scat_alist <- imageList2arrayList(scat_list)
 vsat_alist <- imageList2arrayList(vsat_list)
 ```
 
-```{r}
+```{r eval=FALSE, include=FALSE}
 lobstr::obj_sizes(mri_alist, mask_alist, scat_alist, vsat_alist)
 ```
 
@@ -307,30 +296,21 @@ scat_tensor <- arrayList2Tensor(scat_alist)
 vsat_tensor <- arrayList2Tensor(vsat_alist)
 ```
 
-```{r}
+```{r eval=FALSE, include=FALSE}
 str(mri_tensor)
 lobstr::obj_sizes(mri_tensor, mask_tensor, scat_tensor, vsat_tensor)
 ```
 
 
-### Check if dimnames are parallel to image indexes
+## Check correctness of dimnames
 
-```{r figures2-side10, fig.show="hold", fig.asp=0.5, out.width="50%"}
+```{r figures3-side10, fig.show="hold", fig.asp=0.5, out.width="33%"}
 plot2_array2d(
   mri_tensor[29,,], mask_tensor[29,,],
   alpha = 0.4,
   title = dimnames(mri_tensor)[[1]][[29]],
   title_size = 24
 )
-plot2_array2d(
-  mri_tensor[29,,],
-  alpha = 0.1,
-  title = dimnames(mri_tensor)[[1]][[29]],
-  title_size = 24
-)
-```
-
-```{r figures2-side2, fig.show="hold", fig.asp=0.5, out.width="50%"}
 plot2_array2d(
   mri_tensor[29,,], scat_tensor[29,,],
   title = dimnames(mri_tensor)[[1]][[29]],
@@ -343,19 +323,10 @@ plot2_array2d(
 )
 ```
 
-```{r figures2-side3, fig.show="hold", fig.asp=0.5, out.width="50%"}
-plot_array2d(scat_tensor[46,,], title = dimnames(scat_tensor)[[1]][[46]])
-plot_array2d(scat_tensor["700120",,], title = dimnames(scat_tensor)[[1]][[46]])
-```
-
-```{r figures2-side4, fig.show="hold", fig.asp=0.5, out.width="50%"}
-plot_array2d(vsat_tensor[51,,], title = dimnames(vsat_tensor)[[1]][[51]])
-plot_array2d(vsat_tensor[53,,], title = dimnames(vsat_tensor)[[1]][[53]])
-```
-
 ```{r}
-table(scat_tensor[53,,])
-table(vsat_tensor[53,,])
+table(mask_tensor[29,,])
+table(scat_tensor[29,,])
+table(vsat_tensor[29,,])
 ```
 
 
@@ -374,104 +345,4 @@ table(vsat_tensor[53,,])
 #   compress = "bzip2",
 #   version = 2
 # )
-```
-
-
-## TODO: Resampling Tensors in next file
-
-Use these functions
-`ANTsRNet::resampleTensor`, `reticulate::array_reshape`.
-
-
-## AdvR: missing values
-
-```{r}
-NA > 5
-NA > NA
-10 * NA
-!NA
-```
-
-```{r}
-NA | TRUE
-NA & FALSE
-```
-
-```{r}
-0/0
-1/0
--1/0
-1/Inf
-```
-
-```{r}
-# x == NA
-empty = c()
-is.finite(empty)
-empty[is.finite(empty)]
-empty[is.na(empty)]
-maxi = max(empty[is.finite(empty)])
-is.finite(maxi)
-cat("---\n")
-x <- c(NA, 5, NA, 10)
-is.na(x)
-is.finite(x)
-x[is.finite(x)]
-x[!is.na(x)]
-max(x[!is.na(x)])
-y <- c(NaN, 5, NaN, 10)
-is.na(y)
-is.finite(y)
-y[is.finite(y)]
-y[!is.na(y)]
-max(y[!is.na(y)])
-z <- c(Inf, 5, -Inf, 10)
-is.na(z)
-is.finite(z)
-z[is.finite(z)]
-z[!is.na(z)]
-max(z[!is.na(z)])
-```
-
-```{r}
-?max
-max(c(1, -Inf))
-
-max(c())
-max(NA, na.rm = TRUE)
-max(NaN, na.rm = TRUE)
-
-maxi <- max(c())
-!is.finite(maxi) | maxi == 0
-maxi <- 0
-!is.finite(maxi) | maxi == 0
-```
-
-
-## Looking thru colorspace
-
-```{r}
-A = c(0.5, 1, 0, NA, NaN, Inf)
-B = c(0.5, 1, 0, 0.5, 0.5, 0.5)
-tb <- colorspace::RGB(R = A, G = B, B = B)
-tb
-```
-
-```{r}
-col <- colorspace::hex(tb)
-col
-is.na(col[1])
-is.na(col[4])
-```
-
-```{r}
-ord <- as.character(levels(factor(col)))
-ord
-ord[2]
-```
-
-```{r}
-f <- factor(col)
-f
-levels(f)
 ```

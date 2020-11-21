@@ -18,3 +18,5 @@
 ^10-mr_images_to_tensors\.md$
 
 ^bin$
+^tmp$
+
