@@ -170,8 +170,8 @@ vsat_list <- imageFileNames2ImageList(info_vsat[["file_path"]]) %>%
 We are going to remove the background noise from image. Why?
 see the figure below.
 
-The background noise present in image (left) and 
-removed from image (right).
+The background noise and artifacts (forearms here) present in image (left)
+and removed from image (right).
 
 ```{r figures-bgnoise, fig.show="hold", fig.asp=1, out.width="25%"}
 invisible(plot(mri_list[[1]], doCropping = FALSE))
@@ -194,7 +194,7 @@ scat_list <- purrr::map2(scat_list, mask_list, `*`)
 vsat_list <- purrr::map2(vsat_list, mask_list, `*`)
 ```
 
-```{r}
+```{r eval=FALSE, include=FALSE}
 lobstr::obj_sizes(mri_list, mask_list, scat_list, vsat_list)
 ```
 
@@ -301,13 +301,9 @@ str(mri_tensor)
 lobstr::obj_sizes(mri_tensor, mask_tensor, scat_tensor, vsat_tensor)
 ```
 
-
-## Check correctness of dimnames
-
 ```{r figures3-side10, fig.show="hold", fig.asp=0.5, out.width="33%"}
 plot2_array2d(
   mri_tensor[29,,], mask_tensor[29,,],
-  alpha = 0.4,
   title = dimnames(mri_tensor)[[1]][[29]],
   title_size = 24
 )
