@@ -326,19 +326,49 @@ table(vsat_tensor[29,,])
 ```
 
 
-## TODO: save tensors in `data-data` raw
+## Save tensors in `data-raw` directory
 
 ```{r}
-# use_data_raw(
-#   name = "DATASET",
-#   open = rlang::is_interactive()
-# )
-#
-# use_data(
-#   ...,
-#   internal = FALSE,
-#   overwrite = FALSE,
-#   compress = "bzip2",
-#   version = 2
-# )
+str(mri_tensor)
+str(mask_tensor)
+str(scat_tensor)
+str(vsat_tensor)
+```
+```{r}
+set.seed(202011)
+test <- sort(sample(1:80, 10, replace = FALSE))
+train <- sort((1:80)[-test])
+str(train)
+str(test)
+```
+
+```{r}
+fat80_768x384 = list(
+  train = list(
+    image = mri_tensor[train,,],
+    mask = mask_tensor[train,,],
+    scat = scat_tensor[train,,],
+    vsat = vsat_tensor[train,,]
+  ),
+  test = list(
+    image = mri_tensor[test,,],
+    mask = mask_tensor[test,,],
+    scat = scat_tensor[test,,],
+    vsat = vsat_tensor[test,,]
+  )
+)
+```
+
+```{r}
+usethis::use_data_raw(name = "fat80_768x384")
+usethis::use_data(fat80_768x384, overwrite = TRUE)
+```
+
+```{r eval=FALSE, include=FALSE}
+mnist <- keras::dataset_mnist()
+
+train_images <- mnist$train$x
+train_labels <- mnist$train$y
+test_images <- mnist$test$x
+test_labels <- mnist$test$y
 ```
