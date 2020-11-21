@@ -63,8 +63,12 @@ and a batch of 80 mask --
 
 ## Important Note
 
-We will crop all images to 768x384 and prepare additional
-data with resampled (smaller) images: 384x192 and 192x96.
+We will crop all images to the 768x384 size and 
+prepare tensors for U-Net NN in dimensions:
+```
+768x384, 384x192 and 192x96
+```
+
 Note that both dimensions 768x384 are divisble by 128
 (768/2^7=6, 384/2^7=3).
 
@@ -72,22 +76,16 @@ Note that both dimensions 768x384 are divisble by 128
 ## Helper functions
 
 ```{r}
-crop_image_wxhx1 <- function(img, ll = c(0, 0), wh = c(768, 384)) {
+crop_image_wxhx1 <- function(img, ll = c(34, 56), wh = c(768, 384)) {
   ll = c(ll, 1)
-  # c(34, 56, 1)
   ur = ll + c(wh, 0) - c(1, 1, 0)
-  # c(768 - 1, 384 - 1, 0)
   ANTsRCore::cropIndices(img, ll, ur)
 }
-```
 
-```{r}
 get_channel <- function(img, channel = 1) {
   ANTsRCore::splitChannels(img)[[channel]]
 }
-```
 
-```{r}
 imageList2sliceList <- function(
     iList,
     channel = 1,
@@ -103,16 +101,31 @@ imageList2sliceList <- function(
     )
   }
   iList <- purrr::map(iList, get_channel, ch = channel)
-  iList <- purrr::map(
-    iList,
+  iList <- purrr::map(iList,
     ANTsRCore::extractSlice, slice = z_slice, direction = 3
   )
 }
-```
 
-```{r}
 imageList2MaskList <- function(iList, clean_up = 2) {
   purrr::map(iList, ANTsRCore::getMask, cleanup = clean_up)
+}
+
+imageList2arrayList <- function(iList) {
+  purrr::map(iList, as.array)
+}
+
+arrayList2Tensor <- function(aList, dim_names = info_mri$patient) {
+  tensor <- array(
+    data = NA,
+    dim = c(length(aList), dim(aList[[1]]))
+  )
+
+  for (i in seq_along(aList)) {
+    tensor[i,,] <- aList[[i]]
+  }
+  dimnames(tensor)[[1]] <- dim_names
+
+  tensor
 }
 ```
 
@@ -155,21 +168,22 @@ vsat_list <- imageFileNames2ImageList(info_vsat[["file_path"]]) %>%
   imageList2MaskList(clean_up = 0)
 ```
 
-```{r figures-bhist1, fig.show="hold", fig.asp = 1, out.width="50%"}
-invisible(plot(mri_list[[1]]))
-bhistogram(as.array(mri_list[[1]]))
-```
+We are going to remove the background noise from image.
 
-```{r figures-bhist2, fig.show="hold", fig.asp = 1, out.width="50%"}
-# scat_list <- scat_list * mask_list
+The background noise present (left) and removed (right).
+
+```{r figures-bgnoise, fig.show="hold", fig.asp=1, out.width="25%"}
+invisible(plot(mri_list[[1]], doCropping = FALSE))
+bhistogram(as.array(mri_list[[1]]))
+
 mri_list2 <- purrr::map2(mri_list, mask_list, `*`)
 
-invisible(plot(mri_list2[[1]]))
+invisible(plot(mri_list2[[1]], doCropping = FALSE))
 bhistogram(as.array(mri_list2[[1]]))
 ```
 
 
-## Important! Remove background artifacts
+## Removing the background artifacts from images
 
 ```{r}
 mri_list <- purrr::map2(mri_list, mask_list, `*`)
@@ -182,7 +196,7 @@ lobstr::obj_sizes(mri_list, mask_list, scat_list, vsat_list)
 ```
 
 
-## Test generated images
+## Checking generated images
 
 ```{r}
 testthat::expect_equal(length(mri_list), 80)
@@ -273,13 +287,7 @@ plotBlendedImages(mri, vsat, alpha = 0.35, title = i, title_size = 24)
 ```
 
 
-# Images Lists to Tensors
-
-```{r}
-imageList2arrayList <- function(iList) {
-  purrr::map(iList, as.array)
-}
-```
+## Image Lists to Tensors
 
 ```{r}
 mask_alist <- imageList2arrayList(mask_list)
@@ -293,37 +301,15 @@ lobstr::obj_sizes(mri_alist, mask_alist, scat_alist, vsat_alist)
 ```
 
 ```{r}
-class(mri_alist[[53]])
+mri_tensor <- arrayList2Tensor(mri_alist)
+mask_tensor <- arrayList2Tensor(mask_alist)
+scat_tensor <- arrayList2Tensor(scat_alist)
+vsat_tensor <- arrayList2Tensor(vsat_alist)
 ```
 
 ```{r}
-arrayList2Tensor <- function(aList, dim_names = info_mri$patient) {
-  y_train <- array(
-    data = NA,
-    dim = c(length(aList), dim(aList[[1]]))
-  )
-
-  for (i in seq_along(aList)) {
-    y_train[i,,] <- aList[[i]]
-  }
-  dimnames(y_train)[[1]] <- dim_names
-
-  y_train
-}
-```
-
-```{r}
-mri_train <- arrayList2Tensor(mri_alist)
-mask_train <- arrayList2Tensor(mask_alist)
-scat_train <- arrayList2Tensor(scat_alist)
-vsat_train <- arrayList2Tensor(vsat_alist)
-
-str(mri_train)
-```
-
-
-```{r}
-lobstr::obj_sizes(mri_train, mask_train, scat_train, vsat_train)
+str(mri_tensor)
+lobstr::obj_sizes(mri_tensor, mask_tensor, scat_tensor, vsat_tensor)
 ```
 
 
@@ -331,99 +317,67 @@ lobstr::obj_sizes(mri_train, mask_train, scat_train, vsat_train)
 
 ```{r figures2-side10, fig.show="hold", fig.asp=0.5, out.width="50%"}
 plot2_array2d(
-  mri_train[29,,], mask_train[29,,],
+  mri_tensor[29,,], mask_tensor[29,,],
   alpha = 0.4,
-  title = dimnames(mri_train)[[1]][[29]],
+  title = dimnames(mri_tensor)[[1]][[29]],
   title_size = 24
 )
 plot2_array2d(
-  mri_train[29,,],
+  mri_tensor[29,,],
   alpha = 0.1,
-  title = dimnames(mri_train)[[1]][[29]],
+  title = dimnames(mri_tensor)[[1]][[29]],
   title_size = 24
 )
 ```
 
 ```{r figures2-side2, fig.show="hold", fig.asp=0.5, out.width="50%"}
 plot2_array2d(
-  mri_train[29,,], scat_train[29,,],
-  title = dimnames(mri_train)[[1]][[29]],
+  mri_tensor[29,,], scat_tensor[29,,],
+  title = dimnames(mri_tensor)[[1]][[29]],
   title_size = 24
 )
 plot2_array2d(
-  mri_train[29,,], vsat_train[29,,],
-  title = dimnames(mri_train)[[1]][[29]],
+  mri_tensor[29,,], vsat_tensor[29,,],
+  title = dimnames(mri_tensor)[[1]][[29]],
   title_size = 24
 )
 ```
 
 ```{r figures2-side3, fig.show="hold", fig.asp=0.5, out.width="50%"}
-plot_array2d(scat_train[46,,], title = dimnames(scat_train)[[1]][[46]])
-plot_array2d(scat_train["700120",,], title = dimnames(scat_train)[[1]][[46]])
+plot_array2d(scat_tensor[46,,], title = dimnames(scat_tensor)[[1]][[46]])
+plot_array2d(scat_tensor["700120",,], title = dimnames(scat_tensor)[[1]][[46]])
 ```
 
-```{r figures2-side4, fig.show="hold", fig.asp=0.5, out.width="48%"}
-plot_array2d(vsat_train[51,,], title = dimnames(vsat_train)[[1]][[51]])
-plot_array2d(vsat_train[53,,], title = dimnames(vsat_train)[[1]][[53]])
-```
-
-```{r}
-table(scat_train[53,,])
-table(vsat_train[53,,])
-```
-
-Possible BUG:
-Removed 211608 rows containing missing values (geom_raster).
-
-```{r}
-# plot_array2d(vsat_train[53,,])
-plot_array2d(vsat_train[53,,])
+```{r figures2-side4, fig.show="hold", fig.asp=0.5, out.width="50%"}
+plot_array2d(vsat_tensor[51,,], title = dimnames(vsat_tensor)[[1]][[51]])
+plot_array2d(vsat_tensor[53,,], title = dimnames(vsat_tensor)[[1]][[53]])
 ```
 
 ```{r}
-table(as.numeric(mask_train[53,,]), exclude = NULL)
+table(scat_tensor[53,,])
+table(vsat_tensor[53,,])
 ```
+
+
+## TODO: save tensors in `data-data` raw
 
 ```{r}
-prod(dim(mask_train[53,,]))
-83304+211608
-```
-
-```{r}
-mask53 <- getMask(mri_list[[53]])
-invisible(plot(mri_list[[53]], mask53, alpha = 0.4, doCropping = FALSE))
-range(mask53)
-```
-
-```{r}
-plot_array2d(mri_train[53,,])
-```
-
-```{r}
-dims <- dim(vsat_train[53,,])
-
-vec <- as.numeric(vsat_train[53,,])
-length(vec[is.nan(vec)])
-vec[is.nan(vec)] <- 0
-range(vec)
-
-vsat_train[53,,] <- array(vec, dim = dims)
-maxi = max(vsat_train[53,,], na.rm = TRUE)
-maxi
-
-plot_array2d(vsat_train[53,,])
-# plot_array2d(vsat_train[54,,])
-# plot_array2d(vsat_train[59,,])
-
-# vsat[53,,][is.nan(vsat[53,,])] <- NA
-# vsat[53,,] <- vsat[53,,] / maxi
-# is.nan(maxi)
-# is.na(maxi)
-# maxi == 0
+# use_data_raw(
+#   name = "DATASET",
+#   open = rlang::is_interactive()
+# )
+#
+# use_data(
+#   ...,
+#   internal = FALSE,
+#   overwrite = FALSE,
+#   compress = "bzip2",
+#   version = 2
+# )
 ```
 
 
-## Resampling Tensors
+## TODO: Resampling Tensors in next file
 
 Use these functions
 `ANTsRNet::resampleTensor`, `reticulate::array_reshape`.
