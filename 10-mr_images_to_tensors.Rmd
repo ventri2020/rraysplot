@@ -328,7 +328,12 @@ table(vsat_tensor[29,,])
 
 ## Generate images of all data
 
-TODO.
+TODO: mri + mask, mri + scat, mri + vsat
+
+```{r}
+
+```
+
 
 
 ## Save tensors in `data-raw` directory
