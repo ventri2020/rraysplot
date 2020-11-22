@@ -8,6 +8,19 @@ output:
   pdf_document: default
 ---
 
+```{r, include = FALSE, message=FALSE, warning=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "data-contact-sheets/fat80_768x384-",
+  out.width = "100%"
+)
+
+`%>%` <- purrr::`%>%`
+
+library(tidyverse, warn.conflicts = FALSE)
+```
+
 [Using a Retina display](https://support.apple.com/en-us/HT202471),
 [dpilove](https://dpi.lv/#27″):
 
@@ -25,9 +38,32 @@ output:
 [Taking Control of Plot Scaling](https://www.tidyverse.org/blog/2020/08/taking-control-of-plot-scaling/).
 
 ```{r}
-devtools::install_github('r-lib/ragg')
+# devtools::install_github('r-lib/ragg')
+# install.packages("zeallot")
+
+library(ragg)
 library(rraysplot)
+library(zeallot)
 ```
 
+iMac.
+
+```{r}
+?ragg::agg_jpeg
+# ragg::agg_jpeg(width = 3240, height = 1080, res = 218, scaling = 1, quality = 100)
+```
+
+MacBook Pro.
+
+```{r}
+# ragg::agg_jpeg(file, width = 2160, height = 720, res = 227, scaling = 1, quality = 100)
+```
+
+```{r}
+file <- "temp.jpeg"
+agg_jpeg(file, width = 3240, height = 1080, res = 218, scaling = 1, quality = 100)
+plot(sin, -pi, 2*pi)
+dev.off()
+```
 
 
