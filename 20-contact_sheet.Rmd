@@ -1,6 +1,6 @@
 ---
-title: Tensor Resampling
-date: 21.11.2020
+title: Contact Sheets 
+date: 22.11.2020
 output:
   html_document:
     keep_html: TRUE
@@ -8,7 +8,26 @@ output:
   pdf_document: default
 ---
 
-Use these functions:
+[Using a Retina display](https://support.apple.com/en-us/HT202471),
+[dpilove](https://dpi.lv/#27″):
 
-* `ANTsRNet::resampleTensor`, 
-* `reticulate::array_reshape`.
+1. 27-inch iMac models introduced in 2014 or later. 
+   Native resolution: 5120 x 2880 (16:9) at 218 ppi (pixels per inch).
+   Models introduced in 2014 and 2015 support millions of colors,
+   and models introduced in 2017 or later support one billion colors.
+   Approx. 23 x 13 in.
+1. 13-inch MacBook Pro models introduced in late 2012 or later. 
+   Native resolution: 2560 x 1600 (16:10) at 227 ppi.
+   Support for millions of colors.
+   Approx 11 x 7 in.
+   
+
+[Taking Control of Plot Scaling](https://www.tidyverse.org/blog/2020/08/taking-control-of-plot-scaling/).
+
+```{r}
+devtools::install_github('r-lib/ragg')
+library(rraysplot)
+```
+
+
+

@@ -3,20 +3,18 @@
 ^LICENSE\.md$
 
 ^.*\.html$
+
 ^first_steps\.Rmd$
 ^first_steps\.md$
 ^development_workflow\.Rmd$
 ^development_workflow\.md$
 ^README\.Rmd$
 
-^dicom_info\.R$
-^dicom_plot\.R$
-
 ^00-check_mr_images\.Rmd
 ^00-check_mr_images\.md$
 ^10-mr_images_to_tensors\.Rmd$
-^10-mr_images_to_tensors\.md$
-^20-tensor_resampling\.Rmd$
+^20-contact_sheet\.Rmd$
+^30-tensor_resampling\.Rmd$
 
 ^bin$
 ^tmp$

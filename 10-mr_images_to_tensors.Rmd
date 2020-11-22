@@ -1,5 +1,5 @@
 ---
-title: Convert Images to Tensors
+title: Convert MR Images to Tensors
 date: 19.11.2020
 output:
   html_document:
@@ -326,16 +326,6 @@ table(vsat_tensor[29,,])
 ```
 
 
-## Generate images of all data
-
-TODO: mri + mask, mri + scat, mri + vsat
-
-```{r}
-
-```
-
-
-
 ## Save tensors in `data-raw` directory
 
 ```{r}
@@ -344,6 +334,7 @@ str(mask_tensor)
 str(scat_tensor)
 str(vsat_tensor)
 ```
+
 ```{r}
 set.seed(202011)
 test <- sort(sample(1:80, 10, replace = FALSE))
