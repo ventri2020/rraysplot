@@ -18,7 +18,16 @@ knitr::opts_chunk$set(
 
 `%>%` <- purrr::`%>%`
 
-library(tidyverse, warn.conflicts = FALSE)
+options(buildtools.check = NULL)
+# devtools::install_github('r-lib/ragg')
+# install.packages("zeallot")
+# install.packages("patchwork")
+```
+
+```{r}
+inch <- function(w, h, ppi) sqrt((w/ppi)^2 + (h/ppi)^2)
+inch(5120, 2880, ppi = 218) # iMac
+inch(2560, 1600, ppi = 227) # MacBook Pro
 ```
 
 [Using a Retina display](https://support.apple.com/en-us/HT202471),
@@ -38,32 +47,116 @@ library(tidyverse, warn.conflicts = FALSE)
 [Taking Control of Plot Scaling](https://www.tidyverse.org/blog/2020/08/taking-control-of-plot-scaling/).
 
 ```{r}
-# devtools::install_github('r-lib/ragg')
-# install.packages("zeallot")
-
+library(tidyverse, warn.conflicts = FALSE)
+library(patchwork)
 library(ragg)
-library(rraysplot)
 library(zeallot)
+
+library(rraysplot)
+packageVersion("rraysplot", lib.loc = "~/Library/R/4.0/library/")
 ```
 
-iMac.
+*iMac*, *MacBook Pro* width and height in cm
 
 ```{r}
-?ragg::agg_jpeg
-# ragg::agg_jpeg(width = 3240, height = 1080, res = 218, scaling = 1, quality = 100)
-```
-
-MacBook Pro.
-
-```{r}
-# ragg::agg_jpeg(file, width = 2160, height = 720, res = 227, scaling = 1, quality = 100)
+c(width_in, height_in) %<-% (c(3240, 1080) / 218)
+c(width_in, height_in) * 2.54
+c(width_in, height_in) %<-% (c(2160, 720) / 227)
+c(width_in, height_in) * 2.54
 ```
 
 ```{r}
-file <- "temp.jpeg"
-agg_jpeg(file, width = 3240, height = 1080, res = 218, scaling = 1, quality = 100)
-plot(sin, -pi, 2*pi)
-dev.off()
+# agg_jpeg(width = 3240, height = 1080, res = 218, 
+#   scaling = 1, quality = 100)
+# agg_jpeg(
+#   width = 2160, height = 720, res = 227,
+#   scaling = 1, quality = 100
+# )
 ```
+
+```{r}
+# str(fat80_768x384)
+c(
+  c(image_train, ., scat_train, vsat_train),
+  c(image_test, ., scat_test, vsat_test)
+) %<-% fat80_768x384
+```
+
+```{r}
+dim(image_test)
+```
+
+```{r}
+dimnames(image_test)[[1]]
+```
+
+## Patchworks
+
+```{r}
+i = 10
+img = image_test[i,,]
+scat = scat_test[i,,]
+vsat <- vsat_test[i,,]
+```
+
+```{r contact-sheet, fig.show="hold", fig.asp = 0.5, out.width="33.33%"}
+plot_array2d(img)
+plot2_array2d(img, scat)
+plot2_array2d(img, vsat)
+```
+
+```{r contact-sheet, fig.show="hold", fig.asp = 0.5, out.width="33.33%"}
+
+```
+
+
+
+
+
+
+## TODO
+
+```{r}
+plot_tensors <- function(arraylist, plottitles) {
+  n_col = length(plottitles)
+
+  plot_title <- function(title) cowplot::ggdraw() + cowplot::draw_text(title)
+
+  plots_titles = purrr::map(plottitles, plot_title)
+  plots <- purrr::map(arraylist, plot_array2d)
+
+  row1 <- cowplot::plot_grid(
+    plotlist = plots_titles,
+    ncol = n_col
+  ) +
+    ggplot2::theme(plot.margin = ggplot2::margin(8, 0, 0, 0))
+
+  row2 <- cowplot::plot_grid(
+    plotlist = plots,
+    ncol = n_col,
+    align = "hv"
+  )
+
+  cowplot::plot_grid(
+    row1, row2,
+    align = "hv", ncol = 1,
+    # rel_heights values control vertical title margins
+    rel_heights = c(0.11, 1)
+  ) +
+    cowplot::theme_nothing(
+      font_size = 18
+    )
+}
+```
+
+```{r}
+(jpegfile <- fs::path("./", "downscaling2.jpeg"))
+
+agg_jpeg(jpegfile, width = 3240, height = 1080, units = "px", res = 227, scaling = 2)
+plot(p)
+invisible(dev.off())
+```
+
+
 
 

@@ -9,14 +9,12 @@
 The goal of rraysplot is to make 2D arrays and matrices plots less
 aggravating.
 
+## Inserting Citations
+
+[RStudio 1.4 Preview:
+Citations](https://blog.rstudio.com/2020/11/09/rstudio-1-4-preview-citations/)
+
 ## Installation
-
-You can install the released version of rraysplot from
-[CRAN](https://CRAN.R-project.org) with:
-
-``` r
-install.packages("rraysplot")
-```
 
 You can install the development version of rraysplot from
 [GitHub](https://github.com/) with:
