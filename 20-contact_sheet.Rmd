@@ -8,7 +8,7 @@ output:
   pdf_document: default
 ---
 
-```{r, include = FALSE, message=FALSE, warning=FALSE}
+```{r setup, include = FALSE, message=FALSE, warning=FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
@@ -17,7 +17,8 @@ knitr::opts_chunk$set(
 )
 
 `%>%` <- purrr::`%>%`
-
+`%<-%` <- zeallot::`%<-%`
+  
 options(buildtools.check = NULL)
 # devtools::install_github('r-lib/ragg')
 # install.packages("zeallot")
@@ -59,10 +60,10 @@ packageVersion("rraysplot", lib.loc = "~/Library/R/4.0/library/")
 *iMac*, *MacBook Pro* width and height in cm
 
 ```{r}
-c(width_in, height_in) %<-% (c(3240, 1080) / 218)
-c(width_in, height_in) * 2.54
-c(width_in, height_in) %<-% (c(2160, 720) / 227)
-c(width_in, height_in) * 2.54
+c(3240, 1080) / 218        # in
+c(3240, 1080) / 218 * 2.54 # cm
+c(2160, 720) / 227         # in
+c(2160, 720) / 227 * 2.54  # cm
 ```
 
 ```{r}
@@ -75,11 +76,10 @@ c(width_in, height_in) * 2.54
 ```
 
 ```{r}
-# str(fat80_768x384)
 c(
   c(image_train, ., scat_train, vsat_train),
   c(image_test, ., scat_test, vsat_test)
-) %<-% fat80_768x384
+) %<-% rraysplot::fat80_768x384
 ```
 
 ```{r}
@@ -87,76 +87,58 @@ dim(image_test)
 ```
 
 ```{r}
-dimnames(image_test)[[1]]
+patients <- dimnames(image_test)[[1]]
+patients
 ```
 
 ## Patchworks
 
 ```{r}
-i = 10
-img = image_test[i,,]
-scat = scat_test[i,,]
-vsat <- vsat_test[i,,]
-```
+i = 3
+patient <- patients[i]
+img = image_test[patient,,]
+scat = scat_test[patient,,]
+vsat <- vsat_test[patient,,]
 
-```{r contact-sheet, fig.show="hold", fig.asp = 0.5, out.width="33.33%"}
-plot_array2d(img)
-plot2_array2d(img, scat)
-plot2_array2d(img, vsat)
-```
-
-```{r contact-sheet, fig.show="hold", fig.asp = 0.5, out.width="33.33%"}
-
-```
-
-
-
-
-
-
-## TODO
-
-```{r}
-plot_tensors <- function(arraylist, plottitles) {
-  n_col = length(plottitles)
-
-  plot_title <- function(title) cowplot::ggdraw() + cowplot::draw_text(title)
-
-  plots_titles = purrr::map(plottitles, plot_title)
-  plots <- purrr::map(arraylist, plot_array2d)
-
-  row1 <- cowplot::plot_grid(
-    plotlist = plots_titles,
-    ncol = n_col
-  ) +
-    ggplot2::theme(plot.margin = ggplot2::margin(8, 0, 0, 0))
-
-  row2 <- cowplot::plot_grid(
-    plotlist = plots,
-    ncol = n_col,
-    align = "hv"
-  )
-
-  cowplot::plot_grid(
-    row1, row2,
-    align = "hv", ncol = 1,
-    # rel_heights values control vertical title margins
-    rel_heights = c(0.11, 1)
-  ) +
-    cowplot::theme_nothing(
-      font_size = 18
-    )
+contact_sheet <- function(patient, image, scat, vsat) {
+  p1 <- rraysplot::plot_array2d(image, title = patient, title_size = 10)
+  p2 <- rraysplot::plot2_array2d(scat, scat, title = "SCAT", title_size = 9)
+  p3 <- rraysplot::plot2_array2d(vsat, vsat, title = "VSAT", title_size = 9)
+  
+  print(p1 | p2 | p3)
 }
 ```
 
-```{r}
-(jpegfile <- fs::path("./", "downscaling2.jpeg"))
-
-agg_jpeg(jpegfile, width = 3240, height = 1080, units = "px", res = 227, scaling = 2)
-plot(p)
-invisible(dev.off())
+```{r contact-sheet, fig.show="hold", fig.asp = 0.20, out.width="100%"}
+contact_sheet(patient, img, scat, vsat)
 ```
 
+```{r}
+contact_sheets <- function(
+  directory = "data-contact-sheets",
+  dataList = rraysplot::fat80_768x384$test
+) {
+  patients = dimnames(dataList$image)[[1]]
+  images_tensor = dataList$image
+  for (patient in patients) {
+    # cat("patient: ", patient, "\n")
+    img = dataList$image[patient,,]
+    scat = dataList$scat[patient,,]
+    vsat <- dataList$vsat[patient,,]
+    p1 <- rraysplot::plot_array2d(img, title = patient, title_size = 10)
+    p2 <- rraysplot::plot2_array2d(img, scat, title = "SCAT", title_size = 9)
+    p3 <- rraysplot::plot2_array2d(img, vsat, title = "VSAT", title_size = 9)
+ 
+    # (jpegfile <- fs::path("./", "downscaling2.jpeg"))
+    # agg_jpeg(jpegfile, width = 3240, height = 1080, units = "px", res = 227, scaling = 2)
+    # plot(p)
+    # invisible(dev.off())
+    
+    print(p1 | p2 | p3)
+  }
+}
+```
 
-
-
+```{r contact-sheets, fig.show="hold", fig.asp = 0.26, out.width="100%"}
+contact_sheets()
+```

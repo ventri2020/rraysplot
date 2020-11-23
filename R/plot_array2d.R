@@ -72,11 +72,11 @@ plot_array2d <- function(arrList, title = NULL, title_size = 18) {
       axis.ticks = ggplot2::element_blank(),
       axis.text = ggplot2::element_blank(),
       plot.title = ggplot2::element_text(
-        margin = ggplot2::margin(t = 8, b = 16), # ?margin
+        margin = ggplot2::margin(t = 2, b = 4), # ?margin
         size = title_size,
         lineheight = 1,
         face = "bold",
-        colour = "#f04747",
+        colour = "black",
         hjust = 0.5
       ),
       legend.position = "none"
@@ -130,11 +130,11 @@ plotBlendedImages <- function(
       axis.ticks = ggplot2::element_blank(),
       axis.text = ggplot2::element_blank(),
       plot.title = ggplot2::element_text(
-        margin = ggplot2::margin(t = 8, b = 16), # ?margin
+        margin = ggplot2::margin(t = 2, b = 4), # ?margin
         size = title_size,
         lineheight = 1,
         face = "bold",
-        colour = "#f04747",
+        colour = "deeppink4",
         hjust = 0.5
       ),
       legend.position = "none"
@@ -223,11 +223,11 @@ plot2_array2d <- function(
       axis.ticks = ggplot2::element_blank(),
       axis.text = ggplot2::element_blank(),
       plot.title = ggplot2::element_text(
-        margin = ggplot2::margin(t = 8, b = 16), # ?margin
+        margin = ggplot2::margin(t = 2, b = 4), # ?margin
         size = title_size,
         lineheight = 1,
         face = "bold",
-        colour = "#f04747",
+        colour = "gold4",
         hjust = 0.5
       ),
       legend.position = "none"
