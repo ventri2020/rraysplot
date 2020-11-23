@@ -1,6 +1,6 @@
 ---
 title: Contact Sheets 
-date: 22.11.2020
+date: 24.11.2020
 output:
   html_document:
     keep_html: TRUE
@@ -149,7 +149,7 @@ contact_sheets <- function(
 }
 ```
 
-```{r}
+```{r eval=FALSE, include=FALSE}
 contact_sheets(
   data = rraysplot::fat80_768x384,
   kind = "test",
@@ -166,3 +166,6 @@ contact_sheets(
   prefix = "768x384"
 )
 ```
+
+
+## TODO: resample data
