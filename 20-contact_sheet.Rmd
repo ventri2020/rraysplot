@@ -87,9 +87,9 @@ dim(image_test)
 ```
 
 ```{r}
-patients <- dimnames(image_test)[[1]]
-patients
+(patients <- dimnames(image_test)[[1]])
 ```
+
 
 ## Patchworks
 
@@ -101,9 +101,15 @@ scat = scat_test[patient,,]
 vsat <- vsat_test[patient,,]
 
 contact_sheet <- function(patient, image, scat, vsat) {
-  p1 <- rraysplot::plot_array2d(image, title = patient, title_size = 10)
-  p2 <- rraysplot::plot2_array2d(vsat, scat, title = "SCAT", title_size = 9, alpha = 0.8)
-  p3 <- rraysplot::plot2_array2d(vsat, vsat, title = "VSAT", title_size = 9, alpha = 0.6)
+  p1 <- rraysplot::plot_array2d(
+    image, 
+    title = patient, title_size = 10)
+  p2 <- rraysplot::plot2_array2d(
+    image, scat,
+    title = "SCAT", title_size = 9, alpha = 0.8)
+  p3 <- rraysplot::plot2_array2d(
+    image, vsat, 
+    title = "VSAT", title_size = 9, alpha = 0.6)
   
   print(p1 | p2 | p3)
 }
@@ -115,30 +121,48 @@ contact_sheet(patient, img, scat, vsat)
 
 ```{r}
 contact_sheets <- function(
+  data = rraysplot::fat80_768x384,
+  kind = "test",
   directory = "data-contact-sheets",
-  dataList = rraysplot::fat80_768x384$test
+  prefix = "768x384"
 ) {
-  patients = dimnames(dataList$image)[[1]]
-  images_tensor = dataList$image
+  patients = dimnames(data[[kind]]$image)[[1]]
+
   for (patient in patients) {
-    # cat("patient: ", patient, "\n")
-    img = dataList$image[patient,,]
-    scat = dataList$scat[patient,,]
-    vsat <- dataList$vsat[patient,,]
-    p1 <- rraysplot::plot_array2d(img, title = patient, title_size = 10)
-    p2 <- rraysplot::plot2_array2d(img, scat, title = "SCAT", title_size = 9)
-    p3 <- rraysplot::plot2_array2d(img, vsat, title = "VSAT", title_size = 9)
- 
-    # (jpegfile <- fs::path("./", "downscaling2.jpeg"))
-    # agg_jpeg(jpegfile, width = 3240, height = 1080, units = "px", res = 227, scaling = 2)
-    # plot(p)
-    # invisible(dev.off())
+    img = data[[kind]]$image[patient,,]
+    scat = data[[kind]]$scat[patient,,]
+    vsat <- data[[kind]]$vsat[patient,,]
     
-    print(p1 | p2 | p3)
+    if (!fs::dir_exists(directory)) fs::dir_create(directory)
+
+    jpegfile <- fs::path(
+      directory, stringr::str_c(kind, "-768x384-", patient, ".jpeg")
+    )
+    agg_jpeg(jpegfile,
+      width = 2160, height = 518, units = "px", res = 227,
+      # width = 3240, height = 777, units = "px", res = 218,
+      scaling = 1
+    )
+    contact_sheet(patient, img, scat, vsat)
+    invisible(dev.off())
   }
 }
 ```
 
-```{r contact-sheets, fig.show="hold", fig.asp = 0.24, out.width="100%"}
-contact_sheets()
+```{r}
+contact_sheets(
+  data = rraysplot::fat80_768x384,
+  kind = "test",
+  directory = "data-contact-sheets",
+  prefix = "768x384"
+)
+```
+
+```{r}
+contact_sheets(
+  data = rraysplot::fat80_768x384,
+  kind = "train",
+  directory = "data-contact-sheets",
+  prefix = "768x384"
+)
 ```
