@@ -102,8 +102,8 @@ vsat <- vsat_test[patient,,]
 
 contact_sheet <- function(patient, image, scat, vsat) {
   p1 <- rraysplot::plot_array2d(image, title = patient, title_size = 10)
-  p2 <- rraysplot::plot2_array2d(scat, scat, title = "SCAT", title_size = 9)
-  p3 <- rraysplot::plot2_array2d(vsat, vsat, title = "VSAT", title_size = 9)
+  p2 <- rraysplot::plot2_array2d(vsat, scat, title = "SCAT", title_size = 9, alpha = 0.8)
+  p3 <- rraysplot::plot2_array2d(vsat, vsat, title = "VSAT", title_size = 9, alpha = 0.6)
   
   print(p1 | p2 | p3)
 }
