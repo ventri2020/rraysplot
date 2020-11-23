@@ -109,7 +109,7 @@ contact_sheet <- function(patient, image, scat, vsat) {
 }
 ```
 
-```{r contact-sheet, fig.show="hold", fig.asp = 0.20, out.width="100%"}
+```{r contact-sheet, fig.show="hold", fig.asp = 0.24, out.width="100%"}
 contact_sheet(patient, img, scat, vsat)
 ```
 
@@ -139,6 +139,6 @@ contact_sheets <- function(
 }
 ```
 
-```{r contact-sheets, fig.show="hold", fig.asp = 0.26, out.width="100%"}
+```{r contact-sheets, fig.show="hold", fig.asp = 0.24, out.width="100%"}
 contact_sheets()
 ```
