@@ -18,5 +18,7 @@ tibble
 Create five named 2D arrays: checker, urandom, zeros, ones, rectangle.
 }
 \examples{
+\dontrun{
 images_info("../80_images", extension = "dcm")
+}
 }

@@ -2,12 +2,9 @@
 % Please edit documentation in R/plot_array2d.R
 \name{plot_array2d}
 \alias{plot_array2d}
-\alias{plotBlendedImages}
 \title{Return a ggplot of array}
 \usage{
 plot_array2d(arrList, title = NULL, title_size = 18)
-
-plotBlendedImages(img, mask, alpha = 0.35, title = NULL, title_size = 18)
 }
 \arguments{
 \item{arrList}{array or list of 1, 2, or 3 arrays}
@@ -15,16 +12,8 @@ plotBlendedImages(img, mask, alpha = 0.35, title = NULL, title_size = 18)
 \item{title}{character}
 
 \item{title_size}{numeric}
-
-\item{img}{antsImage}
-
-\item{mask}{antsImage}
-
-\item{alpha}{numeric}
 }
 \value{
-ggplot object
-
 ggplot object
 }
 \description{

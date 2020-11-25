@@ -8,7 +8,9 @@
 #' @return tibble
 #' @export
 #' @examples
+#' \dontrun{
 #' images_info("../80_images", extension = "dcm")
+#' }
 images_info <- function(images_dir, extension = "dcm") {
   image = "image_base|dicom_color|dicom_red|dicom_blue"
   splitter = glue::glue("^({images_dir})/([0-9-]+)/({image})/.*\\.(?:{extension})$")

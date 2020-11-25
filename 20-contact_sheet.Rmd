@@ -1,6 +1,6 @@
 ---
 title: Contact Sheets 
-date: 24.11.2020
+date: 25.11.2020
 output:
   html_document:
     keep_html: TRUE
@@ -8,11 +8,36 @@ output:
   pdf_document: default
 ---
 
+1. [28 Graphics for communication](https://r4ds.had.co.nz/graphics-for-communication.html):
+    * [28.7.1 Figure sizing](https://r4ds.had.co.nz/graphics-for-communication.html#figure-sizing)
+
+If you want to make sure the font size is consistent across 
+all your figures, whenever you set out.width,
+you’ll also need to adjust fig.width to maintain
+the same ratio with your default out.width. 
+
+For example, if your default `fig.width` is 6 and 
+`out.width` is 0.7, when you set `out.width = "50%"` 
+you’ll need to set `fig.width` to 4.3 (6 * 0.5 / 0.7).
+
+```{r}
+adjust_fig_width <- function(
+    fig_width = 6, old_out_width = 70, new_out_width = 50) {
+  round(fig_width * new_out_width / old_out_width, digits = 1)
+}
+# adjust_fig_width()                    # 4.3
+# adjust_fig_width(old_out_width = 100) # 3
+```
+
+
 ```{r setup, include = FALSE, message=FALSE, warning=FALSE}
 knitr::opts_chunk$set(
+  fig.retina = TRUE,
   collapse = TRUE,
   comment = "#>",
   fig.path = "data-contact-sheets/fat80_768x384-",
+  fig.width = 6,
+  fig.asp = 0.618,
   out.width = "100%"
 )
 
@@ -27,8 +52,8 @@ options(buildtools.check = NULL)
 
 ```{r}
 inch <- function(w, h, ppi) sqrt((w/ppi)^2 + (h/ppi)^2)
-inch(5120, 2880, ppi = 218) # iMac
-inch(2560, 1600, ppi = 227) # MacBook Pro
+inch(5120, 2880, ppi = 218) # iMac 27"
+inch(2560, 1600, ppi = 227) # MacBook Pro 13.3"
 ```
 
 [Using a Retina display](https://support.apple.com/en-us/HT202471),
@@ -65,41 +90,9 @@ c(3240, 1080) / 218 * 2.54 # cm
 c(2160, 720) / 227         # in
 c(2160, 720) / 227 * 2.54  # cm
 ```
+## Helper functions
 
 ```{r}
-# agg_jpeg(width = 3240, height = 1080, res = 218, 
-#   scaling = 1, quality = 100)
-# agg_jpeg(
-#   width = 2160, height = 720, res = 227,
-#   scaling = 1, quality = 100
-# )
-```
-
-```{r}
-c(
-  c(image_train, ., scat_train, vsat_train),
-  c(image_test, ., scat_test, vsat_test)
-) %<-% rraysplot::fat80_768x384
-```
-
-```{r}
-dim(image_test)
-```
-
-```{r}
-(patients <- dimnames(image_test)[[1]])
-```
-
-
-## Patchworks
-
-```{r}
-i = 3
-patient <- patients[i]
-img = image_test[patient,,]
-scat = scat_test[patient,,]
-vsat <- vsat_test[patient,,]
-
 contact_sheet <- function(patient, image, scat, vsat) {
   p1 <- rraysplot::plot_array2d(
     image, 
@@ -113,10 +106,6 @@ contact_sheet <- function(patient, image, scat, vsat) {
   
   print(p1 | p2 | p3)
 }
-```
-
-```{r contact-sheet, fig.show="hold", fig.asp = 0.24, out.width="100%"}
-contact_sheet(patient, img, scat, vsat)
 ```
 
 ```{r}
@@ -149,6 +138,64 @@ contact_sheets <- function(
 }
 ```
 
+
+## Read Test and Train Tensors
+
+```{r}
+c(
+  c(image_train, ., scat_train, vsat_train),
+  c(image_test, ., scat_test, vsat_test)
+) %<-% rraysplot::fat80_768x384
+```
+
+```{r}
+dim(image_test)
+dim(image_test)
+```
+
+```{r}
+dimnames(image_test)[[1]]
+cat("\n")
+dimnames(image_train)[[1]]
+```
+
+## Display Broken Images
+
+Broken masks for test images.
+
+```{r}
+patient_contact_sheet <- function(patient, set = "test") {
+  img  = eval(sym(stringr::str_c("image_", set)))[patient,,]
+  scat  = eval(sym(stringr::str_c("scat_", set)))[patient,,]
+  vsat  = eval(sym(stringr::str_c("vsat_", set)))[patient,,]
+  
+  contact_sheet(patient, img, scat, vsat)
+}
+```
+
+```{r}
+broken_test_masks <- c("1110505-2012")
+```
+
+```{r test-mask-1, echo=FALSE, fig.asp=0.24, fig.show="hold", out.width="100%"}
+patient_contact_sheet(broken_test_masks[1], set = "test")
+```
+
+
+```{r}
+broken_train_masks <- c("600725-2013", "806365", "858488")
+```
+
+```{r contact-sheet, echo=FALSE, fig.asp=0.24, fig.show="hold", out.width="100%"}
+patient_contact_sheet(broken_train_masks[1], set = "train")
+patient_contact_sheet(broken_train_masks[2], set = "train")
+patient_contact_sheet(broken_train_masks[3], set = "train")
+```
+
+
+
+## Save only images with correctly computed masks
+
 ```{r eval=FALSE, include=FALSE}
 contact_sheets(
   data = rraysplot::fat80_768x384,
@@ -158,7 +205,7 @@ contact_sheets(
 )
 ```
 
-```{r}
+```{r eval=FALSE, include=FALSE}
 contact_sheets(
   data = rraysplot::fat80_768x384,
   kind = "train",
@@ -166,6 +213,3 @@ contact_sheets(
   prefix = "768x384"
 )
 ```
-
-
-## TODO: resample data

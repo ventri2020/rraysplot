@@ -85,7 +85,7 @@ plot_array2d <- function(arrList, title = NULL, title_size = 18) {
 
 #' Create ggplot from image and mask
 #'
-#' @rdname plot_array2d
+#' @rdname plotBlendedImages
 #'
 #' @param img antsImage
 #' @param mask antsImage
@@ -97,7 +97,7 @@ plot_array2d <- function(arrList, title = NULL, title_size = 18) {
 #' @export
 plotBlendedImages <- function(
     img, mask, alpha = 0.35,
-    title = NULL, title_size = 18
+    title = NULL, title_size = 16
 ) {
   d = dim(mask)
 
