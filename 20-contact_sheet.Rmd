@@ -175,6 +175,7 @@ patient_contact_sheet <- function(patient, set = "test") {
 
 ```{r}
 broken_test_masks <- c("1110505-2012")
+broken_train_masks <- c("600725-2013", "806365", "858488")
 ```
 
 ```{r test-mask-1, echo=FALSE, fig.asp=0.24, fig.show="hold", out.width="100%"}
@@ -182,9 +183,15 @@ patient_contact_sheet(broken_test_masks[1], set = "test")
 ```
 
 ```{r}
-broken_mri <- images_info("../80_images") %>%
+broken_test_images <- images_info("../80_images") %>%
   dplyr::filter(patient %in% broken_test_masks & kind == "MRI")
-broken_mri
+broken_test_images
+```
+
+```{r}
+broken_train_images <- images_info("../80_images") %>%
+  dplyr::filter(patient %in% broken_train_masks & kind == "MRI")
+broken_train_images
 ```
 
 ```{r}
@@ -196,34 +203,29 @@ get_img_mask <- function(path) {
   
   list(image = slice, mask = mask)
 }
+```
 
-im <- get_img_mask(broken_mri$file_path[[1]])
+```{r broken-test}
+im <- get_img_mask(broken_test_images$file_path[[1]])
 plotBlendedImages(im$image, mask = im$mask)
 ```
 
-
-```{r}
-slice <- ANTsRCore::extractSlice(
-  broken_mri$file_path, 
-  slice = 1, direction = 3
-)
-ch1 = ANTsRCore::splitChannels(slice)[[1]]
-
-invisible(plot(ch1, doCropping = FALSE))
+```{r broken-train, echo=FALSE, fig.asp=0.24, fig.show="hold", out.width="100%"}
+patient_contact_sheet(broken_train_masks[[1]], set = "train")
+patient_contact_sheet(broken_train_masks[[2]], set = "train")
+patient_contact_sheet(broken_train_masks[[3]], set = "train")
 ```
 
+```{r blended-train, echo=FALSE, fig.asp=0.24, fig.show="hold", out.width="100%"}
+im1 <- get_img_mask(broken_train_images$file_path[[1]])
+p1 <- plotBlendedImages(im1$image, mask = im1$mask)
+im2 <- get_img_mask(broken_train_images$file_path[[2]])
+p2 <- plotBlendedImages(im2$image, mask = im2$mask)
+im3 <- get_img_mask(broken_train_images$file_path[[3]])
+p3 <- plotBlendedImages(im3$image, mask = im3$mask)
 
-```{r}
-broken_train_masks <- c("600725-2013", "806365", "858488")
+(p1 | p2 | p3)
 ```
-
-```{r contact-sheet, echo=FALSE, fig.asp=0.24, fig.show="hold", out.width="100%"}
-patient_contact_sheet(broken_train_masks[1], set = "train")
-patient_contact_sheet(broken_train_masks[2], set = "train")
-patient_contact_sheet(broken_train_masks[3], set = "train")
-```
-
-
 
 ## Save only images with correctly computed masks
 

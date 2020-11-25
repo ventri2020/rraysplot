@@ -1,6 +1,6 @@
 Package: rraysplot
 Title: Make 2D Arrays Plots Less Aggravating
-Version: 0.0.0.9013
+Version: 0.0.0.9014
 Authors@R: 
     person(given = "Wlodek",
            family = "Bzyl",
