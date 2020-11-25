@@ -11,8 +11,10 @@ aggravating.
 
 ## Inserting Citations
 
-[RStudio 1.4 Preview:
-Citations](https://blog.rstudio.com/2020/11/09/rstudio-1-4-preview-citations/)
+1.  [RStudio 1.4 Preview:
+    Citations](https://blog.rstudio.com/2020/11/09/rstudio-1-4-preview-citations/)
+2.  [Comparison of fs functions, base R, and shell
+    commands](https://cran.r-project.org/web/packages/fs/vignettes/function-comparisons.html)
 
 ## Installation
 
