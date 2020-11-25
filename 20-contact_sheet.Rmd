@@ -227,6 +227,7 @@ p3 <- plotBlendedImages(im3$image, mask = im3$mask)
 (p1 | p2 | p3)
 ```
 
+
 ## Save only images with correctly computed masks
 
 ```{r eval=FALSE, include=FALSE}
