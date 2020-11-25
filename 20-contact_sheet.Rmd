@@ -181,6 +181,37 @@ broken_test_masks <- c("1110505-2012")
 patient_contact_sheet(broken_test_masks[1], set = "test")
 ```
 
+```{r}
+broken_mri <- images_info("../80_images") %>%
+  dplyr::filter(patient %in% broken_test_masks & kind == "MRI")
+broken_mri
+```
+
+```{r}
+get_img_mask <- function(path) {
+  img <- ANTsRCore::antsImageRead(path)
+  ch1 <- ANTsRCore::splitChannels(img)[[1]]
+  slice <- ANTsRCore::extractSlice(ch1, slice = 1, direction = 3)
+  mask <- ANTsRCore::getMask(slice, cleanup = 2)
+  
+  list(image = slice, mask = mask)
+}
+
+im <- get_img_mask(broken_mri$file_path[[1]])
+plotBlendedImages(im$image, mask = im$mask)
+```
+
+
+```{r}
+slice <- ANTsRCore::extractSlice(
+  broken_mri$file_path, 
+  slice = 1, direction = 3
+)
+ch1 = ANTsRCore::splitChannels(slice)[[1]]
+
+invisible(plot(ch1, doCropping = FALSE))
+```
+
 
 ```{r}
 broken_train_masks <- c("600725-2013", "806365", "858488")
