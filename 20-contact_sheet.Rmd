@@ -149,7 +149,7 @@ c(
 ```
 
 ```{r}
-dim(image_test)
+dim(image_train)
 dim(image_test)
 ```
 
@@ -163,7 +163,7 @@ dimnames(image_train)[[1]]
 
 Broken masks for test images.
 
-```{r}
+```{r eval=FALSE, include=FALSE}
 patient_contact_sheet <- function(patient, set = "test") {
   img  = eval(sym(stringr::str_c("image_", set)))[patient,,]
   scat  = eval(sym(stringr::str_c("scat_", set)))[patient,,]
@@ -178,7 +178,7 @@ broken_test_masks <- c("1110505-2012")
 broken_train_masks <- c("600725-2013", "806365", "858488")
 ```
 
-```{r test-mask-1, echo=FALSE, fig.asp=0.24, fig.show="hold", out.width="100%"}
+```{r test-mask-1, eval=FALSE, fig.asp=0.24, fig.show="hold", include=FALSE, out.width="100%"}
 patient_contact_sheet(broken_test_masks[1], set = "test")
 ```
 
