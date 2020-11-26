@@ -20,7 +20,7 @@ For example, if your default `fig.width` is 6 and
 `out.width` is 0.7, when you set `out.width = "50%"` 
 you’ll need to set `fig.width` to 4.3 (6 * 0.5 / 0.7).
 
-```{r}
+```{r include=FALSE}
 adjust_fig_width <- function(
     fig_width = 6, old_out_width = 70, new_out_width = 50) {
   round(fig_width * new_out_width / old_out_width, digits = 1)
@@ -38,6 +38,7 @@ knitr::opts_chunk$set(
   fig.path = "data-contact-sheets/fat80_768x384-",
   fig.width = 6,
   fig.asp = 0.618,
+  fig.align = "center",
   out.width = "100%"
 )
 
@@ -50,7 +51,7 @@ options(buildtools.check = NULL)
 # install.packages("patchwork")
 ```
 
-```{r}
+```{r echo=FALSE}
 inch <- function(w, h, ppi) sqrt((w/ppi)^2 + (h/ppi)^2)
 inch(5120, 2880, ppi = 218) # iMac 27"
 inch(2560, 1600, ppi = 227) # MacBook Pro 13.3"
@@ -69,10 +70,9 @@ inch(2560, 1600, ppi = 227) # MacBook Pro 13.3"
    Support for millions of colors.
    Approx 11 x 7 in.
    
-
 [Taking Control of Plot Scaling](https://www.tidyverse.org/blog/2020/08/taking-control-of-plot-scaling/).
 
-```{r}
+```{r include=FALSE}
 library(tidyverse, warn.conflicts = FALSE)
 library(patchwork)
 library(ragg)
@@ -90,9 +90,8 @@ c(3240, 1080) / 218 * 2.54 # cm
 c(2160, 720) / 227         # in
 c(2160, 720) / 227 * 2.54  # cm
 ```
-## Helper functions
 
-```{r}
+```{r include=FALSE}
 contact_sheet <- function(patient, image, scat, vsat) {
   p1 <- rraysplot::plot_array2d(
     image, 
@@ -106,9 +105,7 @@ contact_sheet <- function(patient, image, scat, vsat) {
   
   print(p1 | p2 | p3)
 }
-```
 
-```{r}
 contact_sheets <- function(
   data = rraysplot::fat80_768x384,
   kind = "test",
@@ -136,6 +133,23 @@ contact_sheets <- function(
     invisible(dev.off())
   }
 }
+
+patient_contact_sheet <- function(patient, set = "test") {
+  img  = eval(sym(stringr::str_c("image_", set)))[patient,,]
+  scat  = eval(sym(stringr::str_c("scat_", set)))[patient,,]
+  vsat  = eval(sym(stringr::str_c("vsat_", set)))[patient,,]
+  
+  contact_sheet(patient, img, scat, vsat)
+}
+
+get_image_mask <- function(path) {
+  img <- ANTsRCore::antsImageRead(path)
+  ch1 <- ANTsRCore::splitChannels(img)[[1]]
+  slice <- ANTsRCore::extractSlice(ch1, slice = 1, direction = 3)
+  mask <- ANTsRCore::getMask(slice, cleanup = 2)
+  
+  list(image = slice, mask = mask)
+}
 ```
 
 
@@ -147,6 +161,8 @@ c(
   c(image_test, ., scat_test, vsat_test)
 ) %<-% rraysplot::fat80_768x384
 ```
+
+Check tensor dimensions.
 
 ```{r}
 dim(image_train)
@@ -161,74 +177,41 @@ dimnames(image_train)[[1]]
 
 ## Display Broken Images
 
-Broken masks for test images.
-
-```{r eval=FALSE, include=FALSE}
-patient_contact_sheet <- function(patient, set = "test") {
-  img  = eval(sym(stringr::str_c("image_", set)))[patient,,]
-  scat  = eval(sym(stringr::str_c("scat_", set)))[patient,,]
-  vsat  = eval(sym(stringr::str_c("vsat_", set)))[patient,,]
-  
-  contact_sheet(patient, img, scat, vsat)
-}
-```
-
 ```{r}
-broken_test_masks <- c("1110505-2012")
-broken_train_masks <- c("600725-2013", "806365", "858488")
+broken_test <- c("1110505-2012")
+broken_train <- c("600725-2013", "806365", "858488")
 ```
 
-```{r test-mask-1, eval=FALSE, fig.asp=0.24, fig.show="hold", include=FALSE, out.width="100%"}
-patient_contact_sheet(broken_test_masks[1], set = "test")
+```{r echo=FALSE}
+broken_test_info <- images_info("../80_images") %>%
+  dplyr::filter(patient %in% broken_test & kind == "MRI")
+broken_test_info
 ```
 
-```{r}
-broken_test_images <- images_info("../80_images") %>%
-  dplyr::filter(patient %in% broken_test_masks & kind == "MRI")
-broken_test_images
+```{r echo=FALSE}
+broken_train_info <- images_info("../80_images") %>%
+  dplyr::filter(patient %in% broken_train & kind == "MRI")
+broken_train_info
 ```
 
-```{r}
-broken_train_images <- images_info("../80_images") %>%
-  dplyr::filter(patient %in% broken_train_masks & kind == "MRI")
-broken_train_images
-```
-
-```{r}
-get_img_mask <- function(path) {
-  img <- ANTsRCore::antsImageRead(path)
-  ch1 <- ANTsRCore::splitChannels(img)[[1]]
-  slice <- ANTsRCore::extractSlice(ch1, slice = 1, direction = 3)
-  mask <- ANTsRCore::getMask(slice, cleanup = 2)
-  
-  list(image = slice, mask = mask)
-}
-```
-
-```{r broken-test}
-im <- get_img_mask(broken_test_images$file_path[[1]])
+```{r broken-test, echo=FALSE, fig.asp=0.24, out.width="82%", fig.cap="Test image: 1110505-2012"}
+im <- get_image_mask(broken_test_info$file_path[[1]])
 plotBlendedImages(im$image, mask = im$mask)
 ```
 
-```{r broken-train, echo=FALSE, fig.asp=0.24, fig.show="hold", out.width="100%"}
-patient_contact_sheet(broken_train_masks[[1]], set = "train")
-patient_contact_sheet(broken_train_masks[[2]], set = "train")
-patient_contact_sheet(broken_train_masks[[3]], set = "train")
-```
-
-```{r blended-train, echo=FALSE, fig.asp=0.24, fig.show="hold", out.width="100%"}
-im1 <- get_img_mask(broken_train_images$file_path[[1]])
+```{r blended-train, echo=FALSE, fig.asp=0.24, fig.show="hold", out.width="100%", fig.cap="Train images: 600725-2013, 806365, 858488"}
+im1 <- get_image_mask(broken_train_info$file_path[[1]])
 p1 <- plotBlendedImages(im1$image, mask = im1$mask)
-im2 <- get_img_mask(broken_train_images$file_path[[2]])
+im2 <- get_image_mask(broken_train_info$file_path[[2]])
 p2 <- plotBlendedImages(im2$image, mask = im2$mask)
-im3 <- get_img_mask(broken_train_images$file_path[[3]])
+im3 <- get_image_mask(broken_train_info$file_path[[3]])
 p3 <- plotBlendedImages(im3$image, mask = im3$mask)
 
 (p1 | p2 | p3)
 ```
 
-
-## Save only images with correctly computed masks
+*NOTE:* Only unbroken images tensors, i.e. with correct masks,
+are saved in `fat80_768x384`.
 
 ```{r eval=FALSE, include=FALSE}
 contact_sheets(
