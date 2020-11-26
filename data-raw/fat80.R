@@ -30,9 +30,11 @@ encode_data <- function(data, dims = c(768, 384)) {
   train_shape <- c(67, dims, 1)
   test_shape <- c(9, dims, 1)
 
+  r_reshape <- purrr::compose(as.array, keras::k_reshape)
+
   list(
-    train = purrr::map(data$train, keras::k_reshape, shape = train_shape),
-    test = purrr::map(data$test, keras::k_reshape, shape = test_shape)
+    train = purrr::map(data$train, r_reshape, shape = train_shape),
+    test = purrr::map(data$test, r_reshape, shape = test_shape)
   )
 }
 
@@ -44,10 +46,10 @@ fat_768x384x1 <- encode_data(fat_768x384, dims = c(768, 384))
 usethis::use_data(fat_768x384x1, overwrite = TRUE)
 
 resample_data <- function(data, dims = c(768, 384)) {
-  train = purrr::map(
-    data$train, ANTsRNet::resampleTensor, shape = dims)
-  test = purrr::map(
-    data$test, ANTsRNet::resampleTensor, shape = dims)
+  resampleArray <- purrr::compose(as.array, ANTsRNet::resampleTensor)
+
+  train = purrr::map(data$train, resampleArray, shape = dims)
+  test = purrr::map(data$test, resampleArray, shape = dims)
 
   list(train = train, test = test)
 }

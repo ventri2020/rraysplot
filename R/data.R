@@ -16,8 +16,9 @@ NULL
 #'
 #' Each tensor is an array of image data
 #' with shape: train -- (67, 384, 192), test -- (67, 384, 192)
-#'
 
+#' Fat 768x384x1
+#'
 #' @format A list of tensors. Images resolution 768x384.
 #' \describe{
 #' \item{train}{number of samples 67}
@@ -25,6 +26,8 @@ NULL
 #' }
 "fat_768x384x1"
 
+#' Fat 384x192x1
+#'
 #' @format A list of tensors. Images resolution 384x192.
 #' \describe{
 #' \item{train}{number of samples 67}
@@ -32,6 +35,8 @@ NULL
 #' }
 "fat_384x192x1"
 
+#' Fat 192x96x1
+#'
 #' @format A list of tensors. Images resolution 192x96.
 #' \describe{
 #' \item{train}{number of samples 67}
