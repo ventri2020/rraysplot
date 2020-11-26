@@ -23,18 +23,18 @@ NULL
 #' \item{train}{number of samples 67}
 #' \item{test}{number of samples 9}
 #' }
-"fat_768x384"
+"fat_768x384x1"
 
 #' @format A list of tensors. Images resolution 384x192.
 #' \describe{
 #' \item{train}{number of samples 67}
 #' \item{test}{number of samples 9}
 #' }
-"fat_384x192"
+"fat_384x192x1"
 
-#' @format A list of tensors. Images resolution 384x192.
+#' @format A list of tensors. Images resolution 192x96.
 #' \describe{
 #' \item{train}{number of samples 67}
 #' \item{test}{number of samples 9}
 #' }
-"fat_192x96"
+"fat_192x96x1"
