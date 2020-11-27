@@ -30,7 +30,6 @@ test$image, test$mask, test$scat, test$vsat.
 
 Each tensor is an array of image data
 with shape: train -- (67, 384, 192), test -- (67, 384, 192)
-
 Fat 768x384x1
 }
 \keyword{datasets}
