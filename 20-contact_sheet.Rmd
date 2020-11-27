@@ -107,22 +107,23 @@ contact_sheet <- function(patient, image, scat, vsat) {
 }
 
 contact_sheets <- function(
-  data = rraysplot::fat80_768x384,
+  data = rraysplot::fat_768x384x1,
   kind = "test",
   directory = "data-contact-sheets",
-  prefix = "768x384"
+  prefix = "768x384x1"
 ) {
   patients = dimnames(data[[kind]]$image)[[1]]
 
   for (patient in patients) {
-    img = data[[kind]]$image[patient,,]
-    scat = data[[kind]]$scat[patient,,]
-    vsat <- data[[kind]]$vsat[patient,,]
+    img = data[[kind]]$image[patient,,,]
+    scat = data[[kind]]$scat[patient,,,]
+    vsat <- data[[kind]]$vsat[patient,,,]
     
     if (!fs::dir_exists(directory)) fs::dir_create(directory)
 
     jpegfile <- fs::path(
-      directory, stringr::str_c(kind, "-768x384-", patient, ".jpeg")
+      directory, 
+      stringr::str_c(kind, "-", prefix, "-", patient, ".jpeg")
     )
     agg_jpeg(jpegfile,
       width = 2160, height = 518, units = "px", res = 227,
@@ -135,9 +136,9 @@ contact_sheets <- function(
 }
 
 patient_contact_sheet <- function(patient, set = "test") {
-  img  = eval(sym(stringr::str_c("image_", set)))[patient,,]
-  scat  = eval(sym(stringr::str_c("scat_", set)))[patient,,]
-  vsat  = eval(sym(stringr::str_c("vsat_", set)))[patient,,]
+  img  = eval(sym(stringr::str_c("image_", set)))[patient,,,]
+  scat  = eval(sym(stringr::str_c("scat_", set)))[patient,,,]
+  vsat  = eval(sym(stringr::str_c("vsat_", set)))[patient,,,]
   
   contact_sheet(patient, img, scat, vsat)
 }
@@ -220,6 +221,13 @@ contact_sheets(
   directory = "data-contact-sheets",
   prefix = "384x192x1"
 )
+
+contact_sheets(
+  data = rraysplot::fat_192x96x1,
+  kind = "test",
+  directory = "data-contact-sheets",
+  prefix = "192x96x1"
+)
 ```
 
 ```{r eval=FALSE, include=FALSE}
@@ -228,5 +236,12 @@ contact_sheets(
   kind = "train",
   directory = "data-contact-sheets",
   prefix = "384x192x1"
+)
+
+contact_sheets(
+  data = rraysplot::fat_192x96x1,
+  kind = "train",
+  directory = "data-contact-sheets",
+  prefix = "192x96x1"
 )
 ```
