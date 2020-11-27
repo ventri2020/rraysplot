@@ -23,11 +23,21 @@ fat_768x384 <- remove_images(
   fat80_768x384, broken_test_images, broken_train_images
 )
 
-# dim(fat_768x384$test$vsat)
-# dim(fat_768x384$train$image)
+# memorize dimnames
 
 test_dimnames <- dimnames(fat_768x384$test$image)[[1]]
 train_dimnames <- dimnames(fat_768x384$train$image)[[1]]
+
+add_dimnames <- function(tensor, dim_names) {
+  dimnames(tensor)[[1]] <- dim_names
+  tensor
+}
+
+add_dimnames_to_data <- function(data, train_names, test_names) {
+  train = purrr::map(data$train, add_dimnames, train_names)
+  test = purrr::map(data$test, add_dimnames, test_names)
+  list(train = train, test = test)
+}
 
 encode_data <- function(data, dims = c(768, 384)) {
   train_shape <- c(67, dims, 1)
@@ -43,29 +53,18 @@ encode_data <- function(data, dims = c(768, 384)) {
 
 fat_768x384x1 <- encode_data(fat_768x384, dims = c(768, 384))
 
-# dim(fat_768x384x1$test$vsat)
-# dim(fat_768x384x1$train$image)
+fat_768x384x1 <- add_dimnames_to_data(
+  fat_768x384x1,
+  train_names = train_dimnames,
+  test_names = test_dimnames
+)
 
-add_dimnames <- function(tensor, dim_names) {
-  dimnames(tensor)[[1]] <- dim_names
-  tensor
-}
-
-dimnames(fat_768x384x1$test$scat)[[1]]
-x <- add_dimnames(fat_768x384x1$test$scat, test_dimnames)
-dimnames(x)[[1]]
-
-dimnames(fat_768x384x1$test$image)[[1]]
-dimnames(fat_768x384x1$test$image)[[1]] <- test_dimnames
-dimnames(fat_768x384x1$test$image)[[1]]
-
-dimnames(fat_768x384x1$train$image)[[1]] <- train_dimnames
-
-
+# dimnames(fat_768x384x1$test$image)[[1]]
+# dimnames(fat_768x384x1$train$image)[[1]]
 
 usethis::use_data(fat_768x384x1, overwrite = TRUE)
 
-resample_data <- function(data, dims = c(768, 384)) {
+resample_data <- function(data, dims) {
   resampleArray <- purrr::compose(as.array, ANTsRNet::resampleTensor)
 
   train = purrr::map(data$train, resampleArray, shape = dims)
@@ -76,15 +75,30 @@ resample_data <- function(data, dims = c(768, 384)) {
 
 fat_384x192x1 = resample_data(fat_768x384x1, dims = c(384, 192))
 
+fat_384x192x1 <- add_dimnames_to_data(
+  fat_384x192x1,
+  train_names = train_dimnames,
+  test_names = test_dimnames
+)
+
 # dim(fat_384x192x1$test$vsat)
 # dim(fat_384x192x1$train$image)
+# dimnames(fat_384x192x1$test$image)[[1]]
+# dimnames(fat_384x192x1$train$image)[[1]]
 
 usethis::use_data(fat_384x192x1, overwrite = TRUE)
 
 fat_192x96x1 = resample_data(fat_384x192x1, dims = c(192, 96))
 
+fat_192x96x1 <- add_dimnames_to_data(
+  fat_192x96x1,
+  train_names = train_dimnames,
+  test_names = test_dimnames
+)
+
 # dim(fat_192x96x1$test$vsat)
 # dim(fat_192x96x1$train$image)
+# dimnames(fat_192x96x1$test$image)[[1]]
+# dimnames(fat_192x96x1$train$image)[[1]]
 
 usethis::use_data(fat_192x96x1, overwrite = TRUE)
-
