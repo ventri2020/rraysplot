@@ -26,6 +26,9 @@ fat_768x384 <- remove_images(
 # dim(fat_768x384$test$vsat)
 # dim(fat_768x384$train$image)
 
+test_dimnames <- dimnames(fat_768x384$test$image)[[1]]
+train_dimnames <- dimnames(fat_768x384$train$image)[[1]]
+
 encode_data <- function(data, dims = c(768, 384)) {
   train_shape <- c(67, dims, 1)
   test_shape <- c(9, dims, 1)
@@ -42,6 +45,23 @@ fat_768x384x1 <- encode_data(fat_768x384, dims = c(768, 384))
 
 # dim(fat_768x384x1$test$vsat)
 # dim(fat_768x384x1$train$image)
+
+add_dimnames <- function(tensor, dim_names) {
+  dimnames(tensor)[[1]] <- dim_names
+  tensor
+}
+
+dimnames(fat_768x384x1$test$scat)[[1]]
+x <- add_dimnames(fat_768x384x1$test$scat, test_dimnames)
+dimnames(x)[[1]]
+
+dimnames(fat_768x384x1$test$image)[[1]]
+dimnames(fat_768x384x1$test$image)[[1]] <- test_dimnames
+dimnames(fat_768x384x1$test$image)[[1]]
+
+dimnames(fat_768x384x1$train$image)[[1]] <- train_dimnames
+
+
 
 usethis::use_data(fat_768x384x1, overwrite = TRUE)
 

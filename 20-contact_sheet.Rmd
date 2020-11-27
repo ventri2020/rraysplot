@@ -159,7 +159,7 @@ get_image_mask <- function(path) {
 c(
   c(image_train, ., scat_train, vsat_train),
   c(image_test, ., scat_test, vsat_test)
-) %<-% rraysplot::fat80_768x384
+) %<-% rraysplot::fat_384x192x1
 ```
 
 Check tensor dimensions.
@@ -215,18 +215,18 @@ are saved in `fat80_768x384`.
 
 ```{r eval=FALSE, include=FALSE}
 contact_sheets(
-  data = rraysplot::fat80_768x384,
+  data = rraysplot::fat_384x192x1,
   kind = "test",
   directory = "data-contact-sheets",
-  prefix = "768x384"
+  prefix = "384x192x1"
 )
 ```
 
 ```{r eval=FALSE, include=FALSE}
 contact_sheets(
-  data = rraysplot::fat80_768x384,
+  data = rraysplot::fat_384x192x1,
   kind = "train",
   directory = "data-contact-sheets",
-  prefix = "768x384"
+  prefix = "384x192x1"
 )
 ```
