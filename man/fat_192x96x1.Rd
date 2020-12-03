@@ -7,8 +7,8 @@
 \format{
 A list of tensors. Images resolution 192x96.
 \describe{
-\item{train}{number of samples 67}
-\item{test}{number of samples 9}
+\item{train}{number of samples 102}
+\item{test}{number of samples 10}
 }
 }
 \usage{
