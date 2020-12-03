@@ -17,7 +17,7 @@ images_info <- function(images_dir, extension = "dcm") {
 
   tibble::tibble(
     file_path = fs::dir_ls(
-      path = "../80_images",
+      path = images_dir,
       regexp = glue::glue(".*\\.({extension}$)"),
       recurse = TRUE
     ) %>%
