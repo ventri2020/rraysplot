@@ -10,55 +10,58 @@ length(fat120_768x384)
 #   1. run the all-contact-sheets chunk in 20-contact_sheet.Rmd
 #   2. check all images in data-contact-sheets/ directory
 
-broken_test_images <- c("1110505-2012")
-broken_train_images <- c("600725-2013", "806365", "858488")
+# 1425191 600725-2013 1110505-2012
+# 1313380 1211968 858488 806365 878740
 
-# ----
-
-set.seed(202011)
-test <- sort(sample(1:120, 10, replace = FALSE))
-train <- sort((1:120)[-test])
-str(train)
-str(test)
-
-fat120_768x384 = list(
-  train = list(
-    image = mri_tensor[train,,],
-    mask = mask_tensor[train,,],
-    scat = scat_tensor[train,,],
-    vsat = vsat_tensor[train,,]
-  ),
-  test = list(
-    image = mri_tensor[test,,],
-    mask = mask_tensor[test,,],
-    scat = scat_tensor[test,,],
-    vsat = vsat_tensor[test,,]
-  )
+broken_images <- c(
+  "1425191", "600725-2013", "1110505-2012",
+  "1313380", "1211968", "858488",
+  "806365", "878740"
 )
 
 subarray <- function(arr, dim_names) arr[dim_names,,]
 
-remove_images <- function(data, test_names, train_names) {
-  dtest_names <- setdiff(dimnames(data$test$image)[[1]], test_names)
-  dtrain_names <- setdiff(dimnames(data$train$image)[[1]], train_names)
-  list(
-    train = purrr::map(data$train, subarray, dim_names = dtrain_names),
-    test = purrr::map(data$test, subarray, dim_names = dtest_names)
-  )
+remove_images <- function(data, patients) {
+  dnames <- setdiff(dimnames(data$image)[[1]], patients)
+  purrr::map(data, subarray, dim_names = dnames)
 }
 
-fat_768x384 <- remove_images(
-  fat120_768x384, broken_test_images, broken_train_images
+fat_768x384 <- remove_images(fat120_768x384, broken_images)
+
+str(fat_768x384)
+n_images <- dim(fat_768x384$image)[1]
+
+set.seed(202012)
+test <- sort(sample(1:n_images, 10, replace = FALSE))
+train <- sort((1:n_images)[-test])
+
+str(train)
+str(test)
+
+fat120_768x384 <- list(
+  train = list(
+    image = fat_768x384$image[train,,],
+    mask = fat_768x384$mask[train,,],
+    scat = fat_768x384$scat[train,,],
+    vsat = fat_768x384$vsat[train,,]
+  ),
+  test = list(
+    image = fat_768x384$image[test,,],
+    mask = fat_768x384$mask[test,,],
+    scat = fat_768x384$scat[test,,],
+    vsat = fat_768x384$vsat[test,,]
+  )
 )
 
-#----
+dim(fat120_768x384$test$image)
+dim(fat120_768x384$train$image)
+# dimnames(fat120_768x384$test$image)[[1]]
+# dimnames(fat120_768x384$train$image)[[1]]
 
-
-
-# memorize dimnames
-
-test_dimnames <- dimnames(fat_768x384$test$image)[[1]]
-train_dimnames <- dimnames(fat_768x384$train$image)[[1]]
+test_dimnames <- dimnames(fat120_768x384$test$image)[[1]]
+train_dimnames <- dimnames(fat120_768x384$train$image)[[1]]
+test_dimnames
+train_dimnames
 
 add_dimnames <- function(tensor, dim_names) {
   dimnames(tensor)[[1]] <- dim_names
@@ -72,8 +75,8 @@ add_dimnames_to_data <- function(data, train_names, test_names) {
 }
 
 encode_data <- function(data, dims = c(768, 384)) {
-  train_shape <- c(67, dims, 1)
-  test_shape <- c(9, dims, 1)
+  train_shape <- c(dim(fat120_768x384$train$image)[1], dims, 1)
+  test_shape <- c(dim(fat120_768x384$test$image)[1], dims, 1)
 
   r_reshape <- purrr::compose(as.array, keras::k_reshape)
 
@@ -83,7 +86,7 @@ encode_data <- function(data, dims = c(768, 384)) {
   )
 }
 
-fat_768x384x1 <- encode_data(fat_768x384, dims = c(768, 384))
+fat_768x384x1 <- encode_data(fat120_768x384, dims = c(768, 384))
 
 fat_768x384x1 <- add_dimnames_to_data(
   fat_768x384x1,
@@ -91,8 +94,8 @@ fat_768x384x1 <- add_dimnames_to_data(
   test_names = test_dimnames
 )
 
-# dimnames(fat_768x384x1$test$image)[[1]]
-# dimnames(fat_768x384x1$train$image)[[1]]
+dimnames(fat_768x384x1$test$image)[[1]]
+dimnames(fat_768x384x1$train$image)[[1]]
 
 usethis::use_data(fat_768x384x1, overwrite = TRUE)
 
@@ -113,10 +116,10 @@ fat_384x192x1 <- add_dimnames_to_data(
   test_names = test_dimnames
 )
 
-# dim(fat_384x192x1$test$vsat)
-# dim(fat_384x192x1$train$image)
-# dimnames(fat_384x192x1$test$image)[[1]]
-# dimnames(fat_384x192x1$train$image)[[1]]
+dim(fat_384x192x1$test$vsat)
+dim(fat_384x192x1$train$image)
+dimnames(fat_384x192x1$test$image)[[1]]
+dimnames(fat_384x192x1$train$image)[[1]]
 
 usethis::use_data(fat_384x192x1, overwrite = TRUE)
 
@@ -128,9 +131,9 @@ fat_192x96x1 <- add_dimnames_to_data(
   test_names = test_dimnames
 )
 
-# dim(fat_192x96x1$test$vsat)
-# dim(fat_192x96x1$train$image)
-# dimnames(fat_192x96x1$test$image)[[1]]
-# dimnames(fat_192x96x1$train$image)[[1]]
+dim(fat_192x96x1$test$vsat)
+dim(fat_192x96x1$train$image)
+dimnames(fat_192x96x1$test$image)[[1]]
+dimnames(fat_192x96x1$train$image)[[1]]
 
 usethis::use_data(fat_192x96x1, overwrite = TRUE)
