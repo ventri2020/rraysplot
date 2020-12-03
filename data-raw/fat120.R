@@ -2,20 +2,40 @@ library(usethis)
 library(keras)
 library(ANTsRNet)
 
-# ANTsRNet::resampleTensor
-# reticulate::array_reshape
-
 broken_test_images <- c("1110505-2012")
 broken_train_images <- c("600725-2013", "806365", "858488")
 
 load(file = "data-raw/fat120_768x384.rda")
+
+# ----
+
+set.seed(202011)
+test <- sort(sample(1:120, 10, replace = FALSE))
+train <- sort((1:120)[-test])
+str(train)
+str(test)
+
+fat120_768x384 = list(
+  train = list(
+    image = mri_tensor[train,,],
+    mask = mask_tensor[train,,],
+    scat = scat_tensor[train,,],
+    vsat = vsat_tensor[train,,]
+  ),
+  test = list(
+    image = mri_tensor[test,,],
+    mask = mask_tensor[test,,],
+    scat = scat_tensor[test,,],
+    vsat = vsat_tensor[test,,]
+  )
+)
+#----
 
 subarray <- function(arr, dim_names) arr[dim_names,,]
 
 remove_images <- function(data, test_names, train_names) {
   dtest_names <- setdiff(dimnames(data$test$image)[[1]], test_names)
   dtrain_names <- setdiff(dimnames(data$train$image)[[1]], train_names)
-
   list(
     train = purrr::map(data$train, subarray, dim_names = dtrain_names),
     test = purrr::map(data$test, subarray, dim_names = dtest_names)
@@ -23,8 +43,10 @@ remove_images <- function(data, test_names, train_names) {
 }
 
 fat_768x384 <- remove_images(
-  fat80_768x384, broken_test_images, broken_train_images
+  fat120_768x384, broken_test_images, broken_train_images
 )
+
+length(fat_768x384$test)
 
 # memorize dimnames
 

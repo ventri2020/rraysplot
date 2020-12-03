@@ -336,32 +336,16 @@ str(vsat_tensor)
 ```
 
 ```{r}
-set.seed(202011)
-test <- sort(sample(1:120, 10, replace = FALSE))
-train <- sort((1:120)[-test])
-str(train)
-str(test)
-```
-
-```{r}
 fat120_768x384 = list(
-  train = list(
-    image = mri_tensor[train,,],
-    mask = mask_tensor[train,,],
-    scat = scat_tensor[train,,],
-    vsat = vsat_tensor[train,,]
-  ),
-  test = list(
-    image = mri_tensor[test,,],
-    mask = mask_tensor[test,,],
-    scat = scat_tensor[test,,],
-    vsat = vsat_tensor[test,,]
-  )
+  image = mri_tensor,
+  mask = mask_tensor,
+  scat = scat_tensor,
+  vsat = vsat_tensor
 )
 ```
 
 ```{r eval=FALSE, include=FALSE}
-usethis::use_data_raw(name = "fat120_768x384")
+# usethis::use_data_raw(name = "fat120_768x384")
 usethis::use_data(fat120_768x384, overwrite = TRUE)
 cat("Move the fat120_768x384 from data/ to data-raw/ directory.\n")
 fs::file_move(
