@@ -6,6 +6,10 @@ load(file = "data-raw/fat120_768x384.rda")
 str(fat120_768x384)
 length(fat120_768x384)
 
+# Update the broken lists below.
+#   1. run the all-contact-sheets chunk in 20-contact_sheet.Rmd
+#   2. check all images in data-contact-sheets/ directory
+
 broken_test_images <- c("1110505-2012")
 broken_train_images <- c("600725-2013", "806365", "858488")
 

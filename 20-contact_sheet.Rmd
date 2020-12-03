@@ -185,7 +185,7 @@ get_image_mask <- function(path) {
 
 ## Print all Contact Sheets
 
-```{r}
+```{r all-contact-sheets}
 all_contact_sheets(
   directory = "data-contact-sheets",
   prefix = "768x384"
