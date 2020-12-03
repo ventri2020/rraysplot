@@ -8,7 +8,7 @@ library(ANTsRNet)
 broken_test_images <- c("1110505-2012")
 broken_train_images <- c("600725-2013", "806365", "858488")
 
-load(file = "data-raw/fat80_768x384.rda")
+load(file = "data-raw/fat120_768x384.rda")
 
 subarray <- function(arr, dim_names) arr[dim_names,,]
 

@@ -1,6 +1,6 @@
 ---
 title: Convert MR Images to Tensors
-date: 19.11.2020
+date: 3.12.2020
 output:
   html_document:
     keep_html: TRUE
@@ -132,7 +132,7 @@ arrayList2Tensor <- function(aList, dim_names = info_mri$patient) {
 ## Read MR Images Data into Tibble
 
 ```{r}
-info <- images_info("../80_images", extension = "dcm")
+info <- images_info("../120_images", extension = "dcm")
 ```
 
 ```{r, rows.print=2}
@@ -202,10 +202,10 @@ lobstr::obj_sizes(mri_list, mask_list, scat_list, vsat_list)
 ## Basic checks on generated images
 
 ```{r}
-testthat::expect_equal(length(mri_list), 80)
-testthat::expect_equal(length(mask_list), 80)
-testthat::expect_equal(length(scat_list), 80)
-testthat::expect_equal(length(vsat_list), 80)
+testthat::expect_equal(length(mri_list), 120)
+testthat::expect_equal(length(mask_list), 120)
+testthat::expect_equal(length(scat_list), 120)
+testthat::expect_equal(length(vsat_list), 120)
 ```
 
 ```{r}
@@ -337,14 +337,14 @@ str(vsat_tensor)
 
 ```{r}
 set.seed(202011)
-test <- sort(sample(1:80, 10, replace = FALSE))
-train <- sort((1:80)[-test])
+test <- sort(sample(1:120, 10, replace = FALSE))
+train <- sort((1:120)[-test])
 str(train)
 str(test)
 ```
 
 ```{r}
-fat80_768x384 = list(
+fat120_768x384 = list(
   train = list(
     image = mri_tensor[train,,],
     mask = mask_tensor[train,,],
@@ -360,7 +360,11 @@ fat80_768x384 = list(
 )
 ```
 
-```{r}
-# usethis::use_data_raw(name = "fat80_768x384")
-# usethis::use_data(fat80_768x384, overwrite = TRUE)
+```{r eval=FALSE, include=FALSE}
+usethis::use_data_raw(name = "fat120_768x384")
+usethis::use_data(fat120_768x384, overwrite = TRUE)
+cat("Move the fat120_768x384 from data/ to data-raw/ directory.\n")
+fs::file_move(
+  "data/fat120_768x384.rda", "data-raw/fat120_768x384.rda"
+)
 ```
