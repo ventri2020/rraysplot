@@ -2,8 +2,8 @@ NULL
 
 #' Tensors for U-Net Neural Nets
 #'
-#' Tensors were created from 80 768x384 images
-#' of the 80 patients,
+#' Tensors were created from 112 768x384 images
+#' of the 120 patients,
 #' along with manually created masks for
 #' subcutaneous adipose tissue (SCAT)
 #' and visceral adipose tissue (VSAT).
@@ -15,14 +15,14 @@ NULL
 #' test$image, test$mask, test$scat, test$vsat.
 #'
 #' Each tensor is an array of image data
-#' with shape: train -- (67, 384, 192), test -- (67, 384, 192)
+#' with shape: train -- 112x768x384, test -- 10x768x384,
 
 #' Fat 768x384x1
 #'
 #' @format A list of tensors. Images resolution 768x384.
 #' \describe{
-#' \item{train}{number of samples 67}
-#' \item{test}{number of samples 9}
+#' \item{train}{number of samples 102}
+#' \item{test}{number of samples 10}
 #' }
 "fat_768x384x1"
 
@@ -30,8 +30,8 @@ NULL
 #'
 #' @format A list of tensors. Images resolution 384x192.
 #' \describe{
-#' \item{train}{number of samples 67}
-#' \item{test}{number of samples 9}
+#' \item{train}{number of samples 102}
+#' \item{test}{number of samples 10}
 #' }
 "fat_384x192x1"
 
@@ -39,7 +39,7 @@ NULL
 #'
 #' @format A list of tensors. Images resolution 192x96.
 #' \describe{
-#' \item{train}{number of samples 67}
-#' \item{test}{number of samples 9}
+#' \item{train}{number of samples 102}
+#' \item{test}{number of samples 10}
 #' }
 "fat_192x96x1"
