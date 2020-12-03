@@ -1,6 +1,6 @@
 ---
 title: Contact Sheets 
-date: 25.11.2020
+date: 3.12.2020
 output:
   html_document:
     keep_html: TRUE
@@ -106,6 +106,35 @@ contact_sheet <- function(patient, image, scat, vsat) {
   print(p1 | p2 | p3)
 }
 
+all_contact_sheets <- function(
+  directory = "data-contact-sheets",
+  prefix = "768x384"
+) {
+  load(file = "data-raw/fat120_768x384.rda")
+  data <- fat120_768x384
+  patients = dimnames(data$image)[[1]]
+
+  for (patient in patients) {
+    img = data$image[patient,,]
+    scat = data$scat[patient,,]
+    vsat <- data$vsat[patient,,]
+    
+    if (!fs::dir_exists(directory)) fs::dir_create(directory)
+
+    jpegfile <- fs::path(
+      directory, 
+      stringr::str_c(prefix, "-", patient, ".jpeg")
+    )
+    agg_jpeg(jpegfile,
+      width = 2160, height = 518, units = "px", res = 227,
+      # width = 3240, height = 777, units = "px", res = 218,
+      scaling = 1
+    )
+    contact_sheet(patient, img, scat, vsat)
+    invisible(dev.off())
+  }
+}
+
 contact_sheets <- function(
   data = rraysplot::fat_768x384x1,
   kind = "test",
@@ -151,6 +180,16 @@ get_image_mask <- function(path) {
   
   list(image = slice, mask = mask)
 }
+```
+
+
+## Print all Contact Sheets
+
+```{r}
+all_contact_sheets(
+  directory = "data-contact-sheets",
+  prefix = "768x384"
+)
 ```
 
 

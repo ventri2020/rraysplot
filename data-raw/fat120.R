@@ -2,10 +2,12 @@ library(usethis)
 library(keras)
 library(ANTsRNet)
 
+load(file = "data-raw/fat120_768x384.rda")
+str(fat120_768x384)
+length(fat120_768x384)
+
 broken_test_images <- c("1110505-2012")
 broken_train_images <- c("600725-2013", "806365", "858488")
-
-load(file = "data-raw/fat120_768x384.rda")
 
 # ----
 
@@ -29,7 +31,6 @@ fat120_768x384 = list(
     vsat = vsat_tensor[test,,]
   )
 )
-#----
 
 subarray <- function(arr, dim_names) arr[dim_names,,]
 
@@ -46,7 +47,9 @@ fat_768x384 <- remove_images(
   fat120_768x384, broken_test_images, broken_train_images
 )
 
-length(fat_768x384$test)
+#----
+
+
 
 # memorize dimnames
 
