@@ -1,6 +1,6 @@
 ---
-title: Convert MR Images to Tensors
-date: 3.12.2020
+title: Convert extra MR Images to Tensors
+date: 7.12.2020
 output:
   html_document:
     keep_html: TRUE
@@ -28,48 +28,6 @@ library(fs)
 library(rraysplot)
 packageVersion("rraysplot")
 ```
-
-
-## Tensor data for U-Net
-
-Source [2.2.11 Data representations for neural networks](https://livebook.manning.com/book/deep-learning-with-r/chapter-2/48)
-in [Deep Learning with R](https://www.manning.com/books/deep-learning-with-r)
-by François Chollet with J. J. Allaire.
-
-Images typically have three dimensions:
-```
-height × width × color channels
-```
-Although grayscale images have only a single color channel
-and could thus be stored in 2D tensors, by convention
-image tensors are always 3D, with a one-dimensional color channel
-for grayscale images.
-
-A batch of 80 grayscale images of size 768×384 could thus
-be stored in a tensor of shape
-```
-(80, 768, 384, 1)
-```
-and a batch of 80 color images could be stored in a tensor of shape
-```
-(80, 768, 384, 3)
-```
-and a batch of 80 mask --
-```
-(80, 768, 384, 2)
-```
-
-
-## Note
-
-We will crop all images to the 768x384 size and 
-prepare tensors for U-Net NN in dimensions:
-```
-768x384, 384x192 and 192x96
-```
-
-Note that both dimensions 768x384 are divisble by 128
-(768/2^7=6, 384/2^7=3).
 
 
 ## Helper functions
