@@ -2,6 +2,8 @@
 #'
 #' Create five named 2D arrays: checker, urandom, zeros, ones, rectangle.
 #'
+#' @importFrom rlang .data
+#'
 #' @param images_dir character
 #' @param extension character
 #'
@@ -25,21 +27,21 @@ images_info <- function(images_dir, extension = "dcm") {
       stringr::str_subset(image)
   ) %>%
     tidyr::extract(
-      col = file_path,
+      col = .data$file_path,
       into = c("series", "patient", "type"),
       regex = splitter,
       remove = FALSE
     ) %>%
     dplyr::mutate(
       kind = dplyr::recode(
-        type,
+        .data$type,
         image_base = "MRI",
         dicom_color = "AT",
         dicom_red = "SCAT",
         dicom_blue = "VSAT"
       )
     ) %>%
-    dplyr::arrange(patient, kind) %>%
+    dplyr::arrange(.data$patient, .data$kind) %>%
     dplyr::select(3, 5, 4, 2, 1)
 }
 

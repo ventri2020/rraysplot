@@ -7,7 +7,7 @@
 \format{
 A list of tensors. Images resolution 384x192.
 \describe{
-\item{train}{number of samples 102}
+\item{train}{number of samples 141}
 \item{test}{number of samples 10}
 }
 }

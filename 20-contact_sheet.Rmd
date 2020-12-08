@@ -1,6 +1,6 @@
 ---
 title: Contact Sheets 
-date: 3.12.2020
+date: 8.12.2020
 output:
   html_document:
     keep_html: TRUE
@@ -35,7 +35,7 @@ knitr::opts_chunk$set(
   fig.retina = TRUE,
   collapse = TRUE,
   comment = "#>",
-  fig.path = "data-contact-sheets/fat80_768x384-",
+  fig.path = "data-contact-sheets/fat40e1_768x384-",
   fig.width = 6,
   fig.asp = 0.618,
   fig.align = "center",
@@ -110,8 +110,8 @@ all_contact_sheets <- function(
   directory = "data-contact-sheets",
   prefix = "768x384"
 ) {
-  load(file = "data-raw/fat120_768x384.rda")
-  data <- fat120_768x384
+  load(file = "data-raw/fat40e1_768x384.rda")
+  data <- fat40e1_768x384
   patients = dimnames(data$image)[[1]]
 
   for (patient in patients) {

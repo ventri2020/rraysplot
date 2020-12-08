@@ -1,0 +1,318 @@
+---
+title: Convert extra MR Images to Tensors
+date: 8.12.2020
+output:
+  html_document:
+    keep_html: TRUE
+    df_print: paged
+  pdf_document: default
+---
+
+```{r, include = FALSE, message=FALSE, warning=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/10_images_to_tensors-",
+  out.width = "100%"
+)
+
+`%>%` <- purrr::`%>%`
+
+library(tidyverse, warn.conflicts = FALSE)
+library(ANTsRCore)
+
+library(devtools)
+library(lobstr)
+library(fs)
+
+library(rraysplot)
+packageVersion("rraysplot")
+```
+
+
+## Helper functions
+
+```{r}
+crop_image_wxhx1 <- function(img, ll = c(34, 56), wh = c(768, 384)) {
+  ll = c(ll, 1)
+  ur = ll + c(wh, 0) - c(1, 1, 0)
+  ANTsRCore::cropIndices(img, ll, ur)
+}
+
+get_channel <- function(img, channel = 1) {
+  ANTsRCore::splitChannels(img)[[channel]]
+}
+
+imageList2sliceList <- function(
+    iList,
+    channel = 1,
+    z_slice = 1,
+    do_cropping = TRUE,
+    lower_left = c(34, 56),
+    width_x_height = c(768, 384)
+) {
+  if (do_cropping == TRUE) {
+    iList <- purrr::map(
+      iList,
+      crop_image_wxhx1, ll = lower_left, wh = width_x_height
+    )
+  }
+  iList <- purrr::map(iList, get_channel, ch = channel)
+  iList <- purrr::map(iList,
+    ANTsRCore::extractSlice, slice = z_slice, direction = 3
+  )
+}
+
+imageList2MaskList <- function(iList, clean_up = 2) {
+  purrr::map(iList, ANTsRCore::getMask, cleanup = clean_up)
+}
+
+imageList2arrayList <- function(iList) {
+  purrr::map(iList, as.array)
+}
+
+arrayList2Tensor <- function(aList, dim_names = info_mri$patient) {
+  tensor <- array(
+    data = NA,
+    dim = c(length(aList), dim(aList[[1]]))
+  )
+
+  for (i in seq_along(aList)) {
+    tensor[i,,] <- aList[[i]]
+  }
+  dimnames(tensor)[[1]] <- dim_names
+
+  tensor
+}
+```
+
+
+## Read MR Images Data into Tibble
+
+```{r}
+# info <- images_info("../120_images", extension = "dcm")
+info <- images_info("../40_images_06.12.2020", extension = "dcm")
+```
+
+```{r}
+n_patients <- 40
+```
+
+```{r, rows.print=2}
+info_mri <- info %>% filter(kind == "MRI")
+info_mri
+```
+
+```{r, rows.print=2}
+info_scat <- info %>% filter(kind == "SCAT")
+info_scat
+```
+
+```{r, rows.print=2}
+info_vsat <- info %>% filter(kind == "VSAT")
+info_vsat
+```
+
+
+## Create MRI, Mask, SCAT, and VSAT Lists
+
+```{r}
+mri_list  <- imageFileNames2ImageList(info_mri[["file_path"]]) %>%
+  imageList2sliceList(channel = 1)
+mask_list <- imageList2MaskList(mri_list, clean_up = 2)
+
+scat_list <- imageFileNames2ImageList(info_scat[["file_path"]]) %>%
+  imageList2sliceList(channel = 1) %>%
+  imageList2MaskList(clean_up = 0)
+
+vsat_list <- imageFileNames2ImageList(info_vsat[["file_path"]]) %>%
+  imageList2sliceList(channel = 3) %>%
+  imageList2MaskList(clean_up = 0)
+```
+
+We are going to remove the background noise from image. Why?
+see the figure below.
+
+The background noise and artifacts (forearms here) present in image (left)
+and removed from image (right).
+
+```{r figures-bgnoise, fig.show="hold", fig.asp=1, out.width="25%"}
+invisible(plot(mri_list[[1]], doCropping = FALSE))
+bhistogram(as.array(mri_list[[1]]))
+
+img1r <- mri_list[[1]] * mask_list[[1]]
+
+invisible(plot(img1r, doCropping = FALSE))
+bhistogram(as.array(img1r))
+```
+
+
+## Background noise and artifacts removal
+
+Removing the background noise and artifacts from MR images.
+
+```{r}
+mri_list <- purrr::map2(mri_list, mask_list, `*`)
+scat_list <- purrr::map2(scat_list, mask_list, `*`)
+vsat_list <- purrr::map2(vsat_list, mask_list, `*`)
+```
+
+```{r eval=FALSE, include=FALSE}
+lobstr::obj_sizes(mri_list, mask_list, scat_list, vsat_list)
+```
+
+
+## Basic checks on generated images
+
+```{r}
+testthat::expect_equal(length(mri_list), n_patients)
+testthat::expect_equal(length(mask_list), n_patients)
+testthat::expect_equal(length(scat_list), n_patients)
+testthat::expect_equal(length(vsat_list), n_patients)
+```
+
+```{r}
+dims <- purrr::map(mri_list, dim)
+testthat::expect_setequal(dims[1], dims)
+testthat::expect_setequal(dims[1], purrr::map(mask_list, dim))
+testthat::expect_setequal(dims[1], purrr::map(scat_list, dim))
+testthat::expect_setequal(dims[1], purrr::map(vsat_list, dim))
+```
+
+```{r}
+n <- 23
+is_na <- purrr::compose(is.na, as.numeric)
+testthat::expect_setequal(is_na(mri_list[[n]]), FALSE)
+testthat::expect_setequal(is_na(mask_list[[n]]), FALSE)
+testthat::expect_setequal(is_na(scat_list[[n]]), FALSE)
+testthat::expect_setequal(is_na(vsat_list[[n]]), FALSE)
+```
+
+```{r}
+in_range <- function(img, rng = 0:255) all(unique(img) %in% rng)
+
+testthat::expect_setequal(
+  purrr::map(mri_list, in_range, rng = 0:255), TRUE
+)
+testthat::expect_setequal(
+  purrr::map(mask_list, in_range, rng = 0:1), TRUE
+)
+testthat::expect_setequal(
+  purrr::map(scat_list, in_range, rng = 0:1), TRUE
+)
+testthat::expect_setequal(
+  purrr::map(vsat_list, in_range, rng = 0:1), TRUE
+)
+```
+
+
+## [Alpha blending](https://en.wikipedia.org/wiki/Alpha_compositing#Alpha_blending_) masks with images
+
+$$
+{\rm blended\ image}_{\rm RGB} = (1 - \alpha)\cdot {\rm image}_{\rm RGB} + \alpha\cdot {\rm background\ mask}_{\rm RGB}
+$$
+
+* Set `alpha == 0` -- for transparent background mask.
+* Set `alpha == 1` -- for fully opaque mask.
+
+An example of blending antsImages.
+
+```{r}
+i = 23
+alpha = 0.25
+
+mri <- antsImageClone(mri_list[[i]])
+mask <- antsImageClone(mask_list[[i]])
+scat <- antsImageClone(scat_list[[i]])
+vsat <- antsImageClone(vsat_list[[i]])
+```
+
+```{r eval=FALSE, include=FALSE}
+# Neon Rainbow
+# https://www.schemecolor.com/neon-rainbow.php
+```
+
+```{r figures-blended1, fig.show="hold", fig.asp = 0.5, out.width="33.3%"}
+plotBlendedImages(mri, mask, alpha = 0.35, title = i, title_size = 24)
+plotBlendedImages(mri, scat, alpha = 0.35, title = i, title_size = 24)
+plotBlendedImages(mri, vsat, alpha = 0.35, title = i, title_size = 24)
+```
+
+
+## Image Lists to Tensors
+
+```{r}
+mask_alist <- imageList2arrayList(mask_list)
+mri_alist <- imageList2arrayList(mri_list)
+scat_alist <- imageList2arrayList(scat_list)
+vsat_alist <- imageList2arrayList(vsat_list)
+```
+
+```{r eval=FALSE, include=FALSE}
+lobstr::obj_sizes(mri_alist, mask_alist, scat_alist, vsat_alist)
+```
+
+```{r}
+mri_tensor <- arrayList2Tensor(mri_alist)
+mask_tensor <- arrayList2Tensor(mask_alist)
+scat_tensor <- arrayList2Tensor(scat_alist)
+vsat_tensor <- arrayList2Tensor(vsat_alist)
+```
+
+```{r eval=FALSE, include=FALSE}
+str(mri_tensor)
+lobstr::obj_sizes(mri_tensor, mask_tensor, scat_tensor, vsat_tensor)
+```
+
+```{r figures3-side10, fig.show="hold", fig.asp=0.5, out.width="33%"}
+plot2_array2d(
+  mri_tensor[29,,], mask_tensor[29,,],
+  title = dimnames(mri_tensor)[[1]][[29]],
+  title_size = 24
+)
+plot2_array2d(
+  mri_tensor[29,,], scat_tensor[29,,],
+  title = dimnames(mri_tensor)[[1]][[29]],
+  title_size = 24
+)
+plot2_array2d(
+  mri_tensor[29,,], vsat_tensor[29,,],
+  title = dimnames(mri_tensor)[[1]][[29]],
+  title_size = 24
+)
+```
+
+```{r}
+table(mask_tensor[29,,])
+table(scat_tensor[29,,])
+table(vsat_tensor[29,,])
+```
+
+
+## Save tensors in `data-raw` directory
+
+```{r}
+str(mri_tensor)
+str(mask_tensor)
+str(scat_tensor)
+str(vsat_tensor)
+```
+
+```{r}
+fat40e1_768x384 = list(
+  image = mri_tensor,
+  mask = mask_tensor,
+  scat = scat_tensor,
+  vsat = vsat_tensor
+)
+```
+
+```{r eval=FALSE, include=FALSE}
+# usethis::use_data_raw(name = "fat120_768x384")
+# usethis::use_data(fat120_768x384, overwrite = TRUE)
+usethis::use_data(fat40e1_768x384, overwrite = TRUE)
+cat("Move the fat40e1_768x384 from data/ to data-raw/ directory.\n")
+fs::file_move(
+  "data/fat40e1_768x384.rda", "data-raw/fat40e1_768x384.rda"
+)
+```
