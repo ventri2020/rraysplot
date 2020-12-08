@@ -7,7 +7,7 @@
 \format{
 A list of tensors. Images resolution 768x384.
 \describe{
-\item{train}{number of samples 102}
+\item{train}{number of samples 141}
 \item{test}{number of samples 10}
 }
 }
@@ -15,8 +15,8 @@ A list of tensors. Images resolution 768x384.
 fat_768x384x1
 }
 \description{
-Tensors were created from 112 768x384 images
-of the 120 patients,
+Tensors were created from 151 768x384 images
+of the 160 patients,
 along with manually created masks for
 subcutaneous adipose tissue (SCAT)
 and visceral adipose tissue (VSAT).
@@ -29,7 +29,7 @@ train$image, train$mask, train$scat, train$vsat,
 test$image, test$mask, test$scat, test$vsat.
 
 Each tensor is an array of image data
-with shape: train -- 112x768x384, test -- 10x768x384,
+with shape: train -- 141x768x384, test -- 10x768x384,
 Fat 768x384x1
 }
 \keyword{datasets}

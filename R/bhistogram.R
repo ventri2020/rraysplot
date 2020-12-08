@@ -2,6 +2,8 @@
 #'
 #' Create binned histogram for numeric data
 #'
+#' @importFrom rlang .data
+#'
 #' @importFrom tibble tibble
 #' @importFrom dplyr mutate
 #' @importFrom scales rescale
@@ -24,7 +26,7 @@ bhistogram <- function(
   rv <- scales::rescale(v, to = c(0,1), from = range(v, na.rm = TRUE))
   tb <- tibble::tibble(value = as.numeric(rv))
 
-  ggplot2::ggplot(tb, ggplot2::aes(x = value)) +
+  ggplot2::ggplot(tb, ggplot2::aes(x = .data$value)) +
     ggplot2::geom_bar(fill = "#312271") +
     ggplot2::scale_x_binned(
       n.breaks = n_breaks,

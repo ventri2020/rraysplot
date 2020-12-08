@@ -2,6 +2,8 @@
 #'
 #' Create ggplot from array
 #'
+#' @importFrom rlang .data
+#'
 #' @importFrom purrr %>% map map_dbl
 #' @importFrom tidyr expand_grid
 #' @importFrom dplyr mutate
@@ -55,7 +57,7 @@ plot_array2d <- function(arrList, title = NULL, title_size = 18) {
   ) %>%
     dplyr::mutate(z = col_hex)
 
-  dt %>% ggplot2::ggplot(ggplot2::aes(x, y)) +
+  dt %>% ggplot2::ggplot(ggplot2::aes(.data$x, .data$y)) +
     ggplot2::geom_raster(ggplot2::aes(fill = z)) +
     ggplot2::labs(
       title = title,
