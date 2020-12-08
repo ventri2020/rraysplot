@@ -1,6 +1,6 @@
 ---
 title: "Check MR Images"
-date: "3.12.2020"
+date: "8.12.2020"
 output: github_document
 ---
 
@@ -28,15 +28,20 @@ packageVersion("rraysplot")
 ## Read file names of images
 
 ```{r, rows.print=8}
-info <- images_info("../120_images", extension = "dcm")
+# info <- images_info("../120_images", extension = "dcm")
+info <- images_info("../40_images_06.12.2020", extension = "dcm")
 info
+```
+
+```{r}
+n_patients <- 40
 ```
 
 
 ## There should be 80*4=320 images
 
 ```{r}
-testthat::expect_equal(length(info$file_path), 120 * 4)
+testthat::expect_equal(length(info$file_path), n_patients * 4)
 ```
 
 ```{r}

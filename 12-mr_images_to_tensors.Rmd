@@ -1,6 +1,6 @@
 ---
 title: Convert extra MR Images to Tensors
-date: 7.12.2020
+date: 8.12.2020
 output:
   html_document:
     keep_html: TRUE
@@ -90,7 +90,12 @@ arrayList2Tensor <- function(aList, dim_names = info_mri$patient) {
 ## Read MR Images Data into Tibble
 
 ```{r}
-info <- images_info("../120_images", extension = "dcm")
+# info <- images_info("../120_images", extension = "dcm")
+info <- images_info("../40_images_06.12.2020", extension = "dcm")
+```
+
+```{r}
+n_patients <- 40
 ```
 
 ```{r, rows.print=2}
@@ -160,10 +165,10 @@ lobstr::obj_sizes(mri_list, mask_list, scat_list, vsat_list)
 ## Basic checks on generated images
 
 ```{r}
-testthat::expect_equal(length(mri_list), 120)
-testthat::expect_equal(length(mask_list), 120)
-testthat::expect_equal(length(scat_list), 120)
-testthat::expect_equal(length(vsat_list), 120)
+testthat::expect_equal(length(mri_list), n_patients)
+testthat::expect_equal(length(mask_list), n_patients)
+testthat::expect_equal(length(scat_list), n_patients)
+testthat::expect_equal(length(vsat_list), n_patients)
 ```
 
 ```{r}
@@ -175,7 +180,7 @@ testthat::expect_setequal(dims[1], purrr::map(vsat_list, dim))
 ```
 
 ```{r}
-n <- 53
+n <- 23
 is_na <- purrr::compose(is.na, as.numeric)
 testthat::expect_setequal(is_na(mri_list[[n]]), FALSE)
 testthat::expect_setequal(is_na(mask_list[[n]]), FALSE)
@@ -213,7 +218,7 @@ $$
 An example of blending antsImages.
 
 ```{r}
-i = 53
+i = 23
 alpha = 0.25
 
 mri <- antsImageClone(mri_list[[i]])
@@ -294,7 +299,7 @@ str(vsat_tensor)
 ```
 
 ```{r}
-fat120_768x384 = list(
+fat40e1_768x384 = list(
   image = mri_tensor,
   mask = mask_tensor,
   scat = scat_tensor,
@@ -304,9 +309,10 @@ fat120_768x384 = list(
 
 ```{r eval=FALSE, include=FALSE}
 # usethis::use_data_raw(name = "fat120_768x384")
-usethis::use_data(fat120_768x384, overwrite = TRUE)
-cat("Move the fat120_768x384 from data/ to data-raw/ directory.\n")
+# usethis::use_data(fat120_768x384, overwrite = TRUE)
+usethis::use_data(fat40e1_768x384, overwrite = TRUE)
+cat("Move the fat40e1_768x384 from data/ to data-raw/ directory.\n")
 fs::file_move(
-  "data/fat120_768x384.rda", "data-raw/fat120_768x384.rda"
+  "data/fat40e1_768x384.rda", "data-raw/fat40e1_768x384.rda"
 )
 ```
