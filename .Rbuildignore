@@ -15,6 +15,7 @@
 ^10-mr_images_to_tensors\.Rmd$
 ^20-contact_sheet\.Rmd$
 ^30-tensor_resampling\.Rmd$
+^12-mr_images_to_tensors.Rmd$
 
 ^bin$
 ^tmp$
