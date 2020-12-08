@@ -58,7 +58,7 @@ plot_array2d <- function(arrList, title = NULL, title_size = 18) {
     dplyr::mutate(z = col_hex)
 
   dt %>% ggplot2::ggplot(ggplot2::aes(.data$x, .data$y)) +
-    ggplot2::geom_raster(ggplot2::aes(fill = z)) +
+    ggplot2::geom_raster(ggplot2::aes(fill = .data$z)) +
     ggplot2::labs(
       title = title,
       x = NULL,
@@ -121,7 +121,7 @@ plotBlendedImages <- function(
   ) %>%
     dplyr::mutate(z = blended_hex)
 
-  dt %>% ggplot2::ggplot(ggplot2::aes(x, y)) +
+  dt %>% ggplot2::ggplot(ggplot2::aes(.data$x, .data$y)) +
     ggplot2::geom_raster(aes(fill = blended_hex)) +
     ggplot2::labs(title = title, x = NULL, y = NULL) +
     ggplot2::scale_fill_manual(
@@ -208,8 +208,8 @@ plot2_array2d <- function(
   ) %>%
     dplyr::mutate(z = blended_hex)
 
-  dt %>% ggplot2::ggplot(ggplot2::aes(x, y)) +
-    ggplot2::geom_raster(ggplot2::aes(fill = z)) +
+  dt %>% ggplot2::ggplot(ggplot2::aes(.data$x, .data$y)) +
+    ggplot2::geom_raster(ggplot2::aes(fill = .data$z)) +
     ggplot2::labs(
       title = title,
       x = NULL,
