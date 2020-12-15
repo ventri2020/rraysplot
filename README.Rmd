@@ -36,7 +36,7 @@ plots less aggravating.
 You can install the development version of rraysplot from
 [GitHub](https://github.com/) with:
 
-``` r
+```r
 # install.packages("devtools")
 devtools::install_github("ventri2020/rraysplot")
 ```
@@ -52,7 +52,7 @@ set.seed(202011)
 c(ch5, r5, z5, o5, sq5) %<-% make_arrays(m = 5, n = 5)
 ```
 
-```{r, figures-side, fig.show="hold", fig.asp=1, out.width="20%"}
+```{r figures-side, fig.show="hold", fig.asp=1, out.width="20%"}
 plot_array2d(ch5, title = "checker", title_size = 54)
 plot_array2d(r5,  title = "urandom", title_size = 54)
 plot_array2d(z5,  title = "zeros", title_size = 54)
@@ -60,7 +60,7 @@ plot_array2d(o5,  title = "ones", title_size = 54)
 plot_array2d(sq5, title = "square", title_size = 54)
 ```
 
-```{r, figures-side-color, fig.show="hold", fig.asp = 0.85, out.width="20%"}
+```{r figures-side-color, fig.show="hold", fig.asp = 0.85, out.width="20%"}
 plot_array2d(list(ch5, sq5))
 plot_array2d(list(ch5, o5, sq5))
 plot_array2d(list(ch5, r5, z5))
@@ -77,7 +77,7 @@ plot_array2d(list(ch5, o5, d5))
 Note that the `mm` values are rescaled to (0,1) range
 by the `bhistogram` function.
 
-```{r, figures-bhistogram, fig.align="center", fig.asp = 1, fig.width=4, out.width = "40%"}
+```{r figures-bhistogram, fig.align="center", fig.asp = 1, fig.width=4, out.width = "40%"}
 mm = c(rnorm(1500, 0, .1), rnorm(1000, 1, .2))
 bhistogram(mm, title = "Multimodal frequencies", title_size = 16)
 ```
