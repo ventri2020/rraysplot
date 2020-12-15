@@ -29,11 +29,21 @@ plot_array2d <- function(arrList, title = NULL, title_size = 18) {
     arrList = list(arrList, arrList, arrList)
   }
 
+  if (class(arrList) == "list" & length(arrList) == 1) {
+    zeros <- rlang::duplicate(arrList[[1]])
+    zeros[,] <- 0
+    arrList <- list(arrList[[1]], zeros, zeros)
+  }
+
   if (class(arrList) == "list" & length(arrList) == 2) {
     # insert into middle (green channel)
     zeros <- rlang::duplicate(arrList[[1]])
     zeros[,] <- 0
     arrList <- append(arrList, list(zeros), 1)
+  }
+
+  if (class(arrList) == "list" & length(arrList) == 3) {
+    arrList <- list(arrList[[1]], 0.5 * arrList[[2]], arrList[[3]])
   }
 
   d = dim(arrList[[1]])
